@@ -1,0 +1,91 @@
+[
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$PjjNk5tj0qCPiyAxxOCkzl$TZ8C0mjzcMXlDBOxoPt9WaWPq1Alf5fPcRrTQ1hW4MI=",
+    "last_login": null,
+    "is_superuser": true,
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-10-14T08:40:34.543Z",
+    "employee_code": "ADM001",
+    "email": "admin@jobbridge.com",
+    "full_name": "Quản trị JobBridge",
+    "department": "Quản trị hệ thống",
+    "phone": "0901000001",
+    "role": "EMPLOYEE"
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$RtSf2Cia8ry3BT6Ah9BVsw$lMGB3zbYNI/ZnlvtKR1P1SLxGxwsFxdTjBZUD3AhcFA=",
+    "last_login": null,
+    "is_superuser": false,
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-14T08:40:34.543Z",
+    "employee_code": "NV001",
+    "email": "hr@jobbridge.com",
+    "full_name": "Lê Minh Hà",
+    "department": "Nhân sự",
+    "phone": "0901000002",
+    "role": "HR"
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$jLSmlM0qxlBZ3pn4igf7vl$9oWkOB817XiAPQUHXtwZcEu5Y9GQvbBhp8aFAgWR0QM=",
+    "last_login": null,
+    "is_superuser": false,
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-14T08:40:34.543Z",
+    "employee_code": "NV002",
+    "email": "an.nguyen@jobbridge.com",
+    "full_name": "Nguyễn Văn An",
+    "department": "Công nghệ thông tin",
+    "phone": "0901000003",
+    "role": "EMPLOYEE"
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$dIyMl8PVAn0wFta6iH3hIl$Mek2WaTmum1xjYBYy2rKf0HzDLgKBfCbKie9fkuEsDA=",
+    "last_login": null,
+    "is_superuser": false,
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-14T08:40:34.543Z",
+    "employee_code": "NV003",
+    "email": "binh.tran@jobbridge.com",
+    "full_name": "Trần Thanh Bình",
+    "department": "Kinh doanh",
+    "phone": "0901000004",
+    "role": "EMPLOYEE"
+  }
+},
+{
+  "model": "recruitment.jobpost",
+  "pk": 1,
+  "fields": {
+    "title": "Python Django Developer",
+    "department": "Công nghệ thông tin",
+    "description": "Phát triển API bằng Django REST Framework; xây dựng giao diện Django Templates; phối hợp kiểm thử và bảo trì ứng dụng.",
+    "requirements": "Có kiến thức Python, Django, SQL và Git; hiểu REST API; chấp nhận ứng viên mới tốt nghiệp.",
+    "number_of_positions": 2,
+    "bonus": "3000000.00",
+    "status": "OPEN",
+    "deadline": "2027-12-31",
+    "created_by": [
+      "hr@jobbridge.com"
+    ],
+    "created_at": "2026-10-14T08:40:34.543Z",
+    "updated_at": "2026-10-14T08:40:34.543Z",
+    "is_deleted": false
+  }
+}
+]
+
