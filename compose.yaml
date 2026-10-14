@@ -9,7 +9,8 @@ services:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY in .env}
       DJANGO_DEBUG: "True"
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
-      DB_NAME: ${DB_NAME:-pycareer}
+      COMPANY_EMAIL_DOMAIN: ${COMPANY_EMAIL_DOMAIN:-jobbridge.com}
+      DB_NAME: ${DB_NAME:-JobBridge}
       DB_USER: root
       DB_PASSWORD: "root"
       DB_HOST: db
@@ -21,7 +22,7 @@ services:
   db:
     image: mysql:8.4
     environment:
-      MYSQL_DATABASE: ${DB_NAME:-pycareer}
+      MYSQL_DATABASE: ${DB_NAME:-JobBridge}
       MYSQL_ROOT_PASSWORD: "root"
       MYSQL_ROOT_HOST: "%"
     ports:

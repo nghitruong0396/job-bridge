@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "accounts.apps.AccountsConfig",
 ]
 
 MIDDLEWARE = [
@@ -56,7 +57,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get("DB_NAME", "pycareer"),
+        "NAME": os.environ.get("DB_NAME", "JobBridge"),
         "USER": os.environ.get("DB_USER", "root"),
         "PASSWORD": os.environ.get("DB_PASSWORD", "root"),
         "HOST": os.environ.get("DB_HOST", "db"),
@@ -67,6 +68,15 @@ DATABASES = {
         },
     }
 }
+
+AUTH_USER_MODEL = "accounts.User"
+COMPANY_EMAIL_DOMAIN = os.environ.get(
+    "COMPANY_EMAIL_DOMAIN", "jobbridge.com"
+).strip().lower()
+
+AUTHENTICATION_BACKENDS = [
+    "accounts.backends.CompanyEmailBackend",
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {

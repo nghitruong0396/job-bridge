@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Tài khoản của tôi | JobBridge{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>Tài khoản của tôi</h1>
+        <table>
+            <tbody>
+                <tr>
+                    <th scope="row">Mã nhân viên</th>
+                    <td>{{ user.employee_code }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Họ tên</th>
+                    <td>{{ user.full_name }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Email công ty</th>
+                    <td>{{ user.email }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Bộ phận</th>
+                    <td>{{ user.department|default:"Chưa cập nhật" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Số điện thoại</th>
+                    <td>{{ user.phone|default:"Chưa cập nhật" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Vai trò</th>
+                    <td>{{ user.get_role_display }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+{% endblock %}
