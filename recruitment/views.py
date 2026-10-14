@@ -1,6 +1,7 @@
 from decimal import Decimal
 from pathlib import Path
 
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Sum
 from django.http import FileResponse
@@ -8,16 +9,13 @@ from django.utils import timezone
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
-from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
 from accounts.models import User
 from accounts.permissions import IsEmployee, IsHR
 
-from .models import (
-    Application, ApplicationStatusHistory, Candidate, JobPost, ReferralReward,
-)
+from .models import Application, Candidate, JobPost, ReferralReward
 from .serializers import (
     ApplicationCreateSerializer,
     ApplicationCVSerializer,
@@ -158,21 +156,16 @@ class ApplicationViewSet(
 
     @action(detail=True, methods=["post"], url_path="change-stage")
     def change_stage(self, request, pk=None):
-        with transaction.atomic():
-            application = get_object_or_404(
-                Application.objects.select_for_update(), pk=pk
+        application = self.get_object()
+        serializer = self.get_serializer(instance=application, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            application = application.change_stage(
+                changed_by=request.user, **serializer.validated_data
             )
-            serializer = self.get_serializer(instance=application, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            from_stage = application.current_stage
-            application.current_stage = serializer.validated_data["to_stage"]
-            application.save(update_fields=["current_stage", "updated_at"])
-            ApplicationStatusHistory.objects.create(
-                application=application,
-                from_stage=from_stage,
-                to_stage=application.current_stage,
-                changed_by=request.user,
-                note=serializer.validated_data["note"],
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(
+                error.message_dict if hasattr(error, "message_dict") else error.messages
             )
         return Response(
             HRApplicationSerializer(
@@ -193,20 +186,11 @@ class ApplicationViewSet(
 
     @action(detail=True, methods=["post"], url_path="confirm-reward")
     def confirm_reward(self, request, pk=None):
-        with transaction.atomic():
-            application = get_object_or_404(
-                Application.objects.select_for_update(), pk=pk
-            )
-            if application.current_stage != Application.Stage.HIRED:
-                raise serializers.ValidationError("Chỉ hồ sơ HIRED được xác nhận thưởng.")
-            if ReferralReward.objects.filter(application=application).exists():
-                raise serializers.ValidationError("Thưởng đã được xác nhận cho hồ sơ này.")
-            reward = ReferralReward.objects.create(
-                application=application,
-                employee_id=application.referrer_id,
-                total_amount=application.bonus_amount,
-                confirmed_by=request.user,
-            )
+        application = self.get_object()
+        try:
+            reward = application.confirm_reward(confirmed_by=request.user)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(error.messages)
         return Response(
             ReferralRewardSerializer(reward).data, status=status.HTTP_201_CREATED
         )

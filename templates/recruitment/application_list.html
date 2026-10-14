@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Hồ sơ giới thiệu | JobBridge{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>Hồ sơ giới thiệu</h1>
+        <form method="get">
+            <label for="stage">Trạng thái tuyển dụng</label>
+            <select id="stage" name="stage">
+                <option value="">Tất cả</option>
+                {% for value, label in stages %}
+                    <option value="{{ value }}" {% if selected_stage == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Lọc</button>
+        </form>
+        {% if user.role == "HR" %}
+            <p><a href="{% url 'recruitment_web:application-list' %}?pending_reward=1">Hồ sơ HIRED chưa xác nhận thưởng</a></p>
+        {% endif %}
+        {% if pending_reward %}<p>Đang xem hồ sơ HIRED chưa có thưởng.</p>{% endif %}
+        <table>
+            <thead><tr><th>Mã hồ sơ</th><th>Ứng viên</th><th>Vị trí</th><th>Trạng thái</th><th>Thưởng lúc giới thiệu</th></tr></thead>
+            <tbody>
+                {% for application in applications %}
+                    <tr>
+                        <td><a href="{% url 'recruitment_web:application-detail' application.pk %}">#{{ application.pk }}</a></td>
+                        <td>{{ application.candidate.full_name }}</td>
+                        <td>{{ application.job.title }}</td>
+                        <td>{{ application.get_current_stage_display }}</td>
+                        <td>{{ application.bonus_amount|floatformat:2 }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">Chưa có hồ sơ phù hợp.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

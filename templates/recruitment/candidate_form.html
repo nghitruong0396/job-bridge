@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Cập nhật ứng viên | JobBridge{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>Cập nhật {{ candidate.full_name }}</h1>
+        <form method="post">
+            {% csrf_token %}{{ form.as_p }}
+            <button type="submit">Lưu hồ sơ</button>
+        </form>
+        <p><a href="{% url 'recruitment_web:candidate-detail' candidate.pk %}">Quay lại hồ sơ</a></p>
+    </section>
+{% endblock %}

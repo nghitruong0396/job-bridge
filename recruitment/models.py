@@ -1,8 +1,11 @@
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import models, transaction
+
+from accounts.models import User
 
 from .utils import normalize_phone
 from .validators import validate_cv
@@ -155,6 +158,38 @@ class Application(models.Model):
                 name="application_bonus_nonnegative",
             ),
         ]
+
+    def change_stage(self, to_stage, changed_by, note=""):
+        if not changed_by.is_active or changed_by.role != User.Role.HR:
+            raise ValidationError("Chỉ HR được chuyển trạng thái.")
+        with transaction.atomic():
+            application = Application.objects.select_for_update().get(pk=self.pk)
+            allowed = self.ALLOWED_TRANSITIONS.get(application.current_stage, ())
+            if to_stage not in allowed:
+                raise ValidationError({"to_stage": "Chuyển trạng thái không hợp lệ."})
+            from_stage = application.current_stage
+            application.current_stage = to_stage
+            application.save(update_fields=["current_stage", "updated_at"])
+            ApplicationStatusHistory.objects.create(
+                application=application, from_stage=from_stage, to_stage=to_stage,
+                changed_by=changed_by, note=note,
+            )
+        return application
+
+    def confirm_reward(self, confirmed_by):
+        if not confirmed_by.is_active or confirmed_by.role != User.Role.HR:
+            raise ValidationError("Chỉ HR được xác nhận thưởng.")
+        with transaction.atomic():
+            application = Application.objects.select_for_update().get(pk=self.pk)
+            if application.current_stage != self.Stage.HIRED:
+                raise ValidationError("Chỉ hồ sơ HIRED được xác nhận thưởng.")
+            if ReferralReward.objects.filter(application=application).exists():
+                raise ValidationError("Thưởng đã được xác nhận cho hồ sơ này.")
+            reward = ReferralReward.objects.create(
+                application=application, employee_id=application.referrer_id,
+                total_amount=application.bonus_amount, confirmed_by=confirmed_by,
+            )
+        return reward
 
     def __str__(self):
         return f"Application #{self.pk} - {self.current_stage}"

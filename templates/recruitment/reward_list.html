@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Thưởng giới thiệu | JobBridge{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>Thưởng giới thiệu</h1>
+        <p>Tổng thưởng đã xác nhận: <strong>{{ total_amount|floatformat:2 }}</strong></p>
+        <table>
+            <thead><tr><th>Mã hồ sơ</th><th>Vị trí</th><th>Người nhận</th><th>Số tiền</th><th>Ngày xác nhận</th></tr></thead>
+            <tbody>
+                {% for reward in rewards %}
+                    <tr>
+                        <td><a href="{% url 'recruitment_web:application-detail' reward.application_id %}">#{{ reward.application_id }}</a></td>
+                        <td>{{ reward.application.job.title }}</td><td>{{ reward.employee.full_name }}</td>
+                        <td>{{ reward.total_amount|floatformat:2 }}</td><td>{{ reward.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">Chưa có thưởng được xác nhận.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

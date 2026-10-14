@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Hồ sơ #{{ application.pk }} | JobBridge{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>Hồ sơ giới thiệu #{{ application.pk }}</h1>
+        <p>Vị trí: {{ application.job.title }}</p>
+        <p>Ứng viên: {{ application.candidate.full_name }}</p>
+        <p>Điện thoại: {{ application.candidate.phone }}</p>
+        <p>Email: {{ application.candidate.email|default:"Chưa cập nhật" }}</p>
+        <p>Địa chỉ: {{ application.candidate.address|default:"Chưa cập nhật" }}</p>
+        <p>Ngày sinh: {{ application.candidate.dob|date:"d/m/Y"|default:"Chưa cập nhật" }}</p>
+        <h2>Kinh nghiệm làm việc</h2>
+        {{ application.candidate.working_experience|default:"Chưa cập nhật"|linebreaks }}
+        <p>Người giới thiệu: {{ application.referrer.full_name }}</p>
+        <p>Trạng thái: {{ application.get_current_stage_display }}</p>
+        <p>Ngày giới thiệu: {{ application.applied_at|date:"d/m/Y H:i" }}</p>
+        <p>Thưởng lúc giới thiệu: {{ application.bonus_amount|floatformat:2 }}</p>
+        {% if application.cv %}
+            <p><a href="{% url 'recruitment:application-cv' application.pk %}">Tải CV</a></p>
+        {% else %}
+            <p>Chưa có CV.</p>
+        {% endif %}
+
+        {% if user.role == "HR" %}
+            <p><a href="{% url 'recruitment_web:candidate-detail' application.candidate_id %}">Xem và cập nhật hồ sơ ứng viên</a></p>
+            <h2>Ghi chú nội bộ</h2>
+            <form method="post" action="{% url 'recruitment_web:application-note' application.pk %}">
+                {% csrf_token %}{{ note_form.as_p }}
+                <button type="submit">Lưu ghi chú</button>
+            </form>
+            <h2>Chuyển trạng thái</h2>
+            {% if can_change_stage %}
+                <form method="post" action="{% url 'recruitment_web:application-stage' application.pk %}">
+                    {% csrf_token %}{{ stage_form.as_p }}
+                    <button type="submit">Chuyển trạng thái</button>
+                </form>
+            {% else %}
+                <p>Hồ sơ đã kết thúc, không thể chuyển trạng thái.</p>
+                {{ stage_form.errors }}
+            {% endif %}
+        {% elif user.role == "EMPLOYEE" %}
+            <h2>Upload CV</h2>
+            <form method="post" enctype="multipart/form-data" action="{% url 'recruitment_web:application-cv' application.pk %}">
+                {% csrf_token %}{{ cv_form.as_p }}
+                <button type="submit">Lưu CV</button>
+            </form>
+        {% endif %}
+
+        <h2>Lịch sử tuyển dụng</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Trạng thái cũ</th><th>Trạng thái mới</th><th>Thời gian</th>
+                    {% if user.role == "HR" %}<th>Người thực hiện</th><th>Ghi chú nội bộ</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in history %}
+                    <tr>
+                        <td>{{ entry.from_stage }}</td><td>{{ entry.to_stage }}</td>
+                        <td>{{ entry.changed_at|date:"d/m/Y H:i" }}</td>
+                        {% if user.role == "HR" %}<td>{{ entry.changed_by.full_name }}</td><td>{{ entry.note|linebreaks }}</td>{% endif %}
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="{% if user.role == 'HR' %}5{% else %}3{% endif %}">Chưa có lịch sử chuyển trạng thái.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2>Thưởng giới thiệu</h2>
+        {% if reward %}
+            <p>Đã xác nhận: {{ reward.total_amount|floatformat:2 }}</p>
+        {% elif user.role == "HR" and application.current_stage == "HIRED" %}
+            <form method="post" action="{% url 'recruitment_web:confirm-reward' application.pk %}">
+                {% csrf_token %}<button type="submit">Xác nhận thưởng</button>
+            </form>
+        {% else %}
+            <p>Chưa có thưởng được xác nhận.</p>
+        {% endif %}
+        <p><a href="{% url 'recruitment_web:application-list' %}">Quay lại danh sách hồ sơ</a></p>
+    </section>
+{% endblock %}

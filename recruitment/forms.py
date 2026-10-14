@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import JobPost
+from .models import Application, Candidate, JobPost
 from .validators import validate_cv
 
 
@@ -33,6 +33,51 @@ class ReferralForm(forms.Form):
     )
     cv = forms.FileField(
         label="CV", required=False, validators=[validate_cv],
+        help_text="PDF, DOC hoặc DOCX. Tối đa 5 MB.",
+        widget=forms.ClearableFileInput(attrs={"accept": ".pdf,.doc,.docx"}),
+    )
+
+
+class CandidateForm(forms.ModelForm):
+    class Meta:
+        model = Candidate
+        fields = (
+            "full_name", "email", "phone", "address", "dob",
+            "working_experience", "note",
+        )
+        widgets = {
+            "dob": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+            "working_experience": forms.Textarea(attrs={"rows": 4}),
+            "note": forms.Textarea(attrs={"rows": 4}),
+        }
+
+
+class ApplicationStageForm(forms.Form):
+    to_stage = forms.ChoiceField(label="Trạng thái tiếp theo")
+    note = forms.CharField(
+        label="Ghi chú nội bộ", required=False,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
+
+    def __init__(self, application, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        labels = dict(Application.Stage.choices)
+        self.fields["to_stage"].choices = [
+            (stage, labels[stage])
+            for stage in Application.ALLOWED_TRANSITIONS.get(application.current_stage, ())
+        ]
+
+
+class ApplicationNoteForm(forms.Form):
+    note = forms.CharField(
+        label="Ghi chú nội bộ", required=False,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
+
+
+class ApplicationCVForm(forms.Form):
+    cv = forms.FileField(
+        label="CV", validators=[validate_cv],
         help_text="PDF, DOC hoặc DOCX. Tối đa 5 MB.",
         widget=forms.ClearableFileInput(attrs={"accept": ".pdf,.doc,.docx"}),
     )

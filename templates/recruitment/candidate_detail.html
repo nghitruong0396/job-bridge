@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ candidate.full_name }} | JobBridge{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>{{ candidate.full_name }}</h1>
+        <p>Điện thoại: {{ candidate.phone }}</p>
+        <p>Email: {{ candidate.email|default:"Chưa cập nhật" }}</p>
+        <p>Địa chỉ: {{ candidate.address|default:"Chưa cập nhật" }}</p>
+        <p>Ngày sinh: {{ candidate.dob|date:"d/m/Y"|default:"Chưa cập nhật" }}</p>
+        <h2>Kinh nghiệm làm việc</h2>
+        {{ candidate.working_experience|default:"Chưa cập nhật"|linebreaks }}
+        <h2>Ghi chú nội bộ</h2>
+        {{ candidate.note|default:"Chưa có ghi chú"|linebreaks }}
+        <p><a href="{% url 'recruitment_web:candidate-edit' candidate.pk %}">Cập nhật hồ sơ</a></p>
+        <h2>Các lần giới thiệu</h2>
+        <table>
+            <thead><tr><th>Mã hồ sơ</th><th>Vị trí</th><th>Người giới thiệu</th><th>Trạng thái</th></tr></thead>
+            <tbody>
+                {% for application in applications %}
+                    <tr>
+                        <td><a href="{% url 'recruitment_web:application-detail' application.pk %}">#{{ application.pk }}</a></td>
+                        <td>{{ application.job.title }}</td><td>{{ application.referrer.full_name }}</td>
+                        <td>{{ application.get_current_stage_display }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4">Chưa có hồ sơ giới thiệu.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p><a href="{% url 'recruitment_web:candidate-list' %}">Quay lại danh sách ứng viên</a></p>
+    </section>
+{% endblock %}

@@ -28,6 +28,11 @@
             <strong>JobBridge</strong>
             {% if user.is_authenticated %}
                 <a href="{% url 'recruitment_web:job-list' %}">Tin tuyển dụng</a>
+                <a href="{% url 'recruitment_web:application-list' %}">Hồ sơ giới thiệu</a>
+                {% if user.role == "HR" %}
+                    <a href="{% url 'recruitment_web:candidate-list' %}">Ứng viên</a>
+                {% endif %}
+                <a href="{% url 'recruitment_web:reward-list' %}">Thưởng giới thiệu</a>
                 <a href="{% url 'accounts_web:profile' %}">Tài khoản của tôi</a>
                 <form method="post" action="{% url 'accounts_web:logout' %}">
                     {% csrf_token %}
