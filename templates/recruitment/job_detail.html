@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} | JobBridge{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>{{ job.title }}</h1>
+        <p>Bộ phận: {{ job.department }}</p>
+        <p>Số lượng tuyển: {{ job.number_of_positions }}</p>
+        <p>Thưởng giới thiệu: {{ job.bonus|floatformat:2 }}</p>
+        <p>Hạn nhận hồ sơ: {{ job.deadline|date:"d/m/Y" }}</p>
+        <p>Trạng thái: {{ job.get_status_display }}</p>
+        <h2>Mô tả công việc</h2>
+        {{ job.description|linebreaks }}
+        <h2>Yêu cầu ứng viên</h2>
+        {{ job.requirements|linebreaks }}
+
+        {% if user.role == "HR" %}
+            <p><a href="{% url 'recruitment_web:job-edit' job.pk %}">Sửa tin tuyển dụng</a></p>
+            <form method="post" action="{% url 'recruitment_web:job-action' job.pk 'open' %}">
+                {% csrf_token %}<p><button type="submit">Mở job</button></p>
+            </form>
+            <form method="post" action="{% url 'recruitment_web:job-action' job.pk 'close' %}">
+                {% csrf_token %}<p><button type="submit">Đóng job</button></p>
+            </form>
+            <form method="post" action="{% url 'recruitment_web:job-action' job.pk 'delete' %}">
+                {% csrf_token %}<p><button type="submit">Xóa mềm job</button></p>
+            </form>
+        {% elif user.role == "EMPLOYEE" %}
+            <p><a href="{% url 'recruitment_web:refer' job.pk %}">Giới thiệu ứng viên</a></p>
+        {% endif %}
+        <p><a href="{% url 'recruitment_web:job-list' %}">Quay lại danh sách</a></p>
+    </section>
+{% endblock %}

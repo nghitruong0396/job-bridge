@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{% if job %}Sửa{% else %}Tạo{% endif %} tin tuyển dụng | JobBridge{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>{% if job %}Sửa{% else %}Tạo{% endif %} tin tuyển dụng</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Lưu tin tuyển dụng</button>
+        </form>
+        <p><a href="{% url 'recruitment_web:job-list' %}">Quay lại danh sách</a></p>
+    </section>
+{% endblock %}

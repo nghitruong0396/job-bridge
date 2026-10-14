@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Giới thiệu ứng viên | JobBridge{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>Giới thiệu ứng viên</h1>
+        <p>Vị trí: {{ job.title }}</p>
+        <p>Thưởng giới thiệu: {{ job.bonus|floatformat:2 }}</p>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Gửi giới thiệu</button>
+        </form>
+        <p><a href="{% url 'recruitment_web:job-detail' job.pk %}">Quay lại tin tuyển dụng</a></p>
+    </section>
+{% endblock %}

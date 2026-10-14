@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Tin tuyển dụng | JobBridge{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>Tin tuyển dụng</h1>
+        {% if user.role == "HR" %}
+            <p><a href="{% url 'recruitment_web:job-create' %}">Tạo tin tuyển dụng</a></p>
+        {% endif %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Vị trí</th><th>Bộ phận</th><th>Thưởng giới thiệu</th>
+                    <th>Hạn nhận hồ sơ</th><th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                    <tr>
+                        <td><a href="{% url 'recruitment_web:job-detail' job.pk %}">{{ job.title }}</a></td>
+                        <td>{{ job.department }}</td>
+                        <td>{{ job.bonus|floatformat:2 }}</td>
+                        <td>{{ job.deadline|date:"d/m/Y" }}</td>
+                        <td>{{ job.get_status_display }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">Chưa có tin tuyển dụng phù hợp.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

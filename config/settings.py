@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "accounts.apps.AccountsConfig",
+    "recruitment.apps.RecruitmentConfig",
 ]
 
 MIDDLEWARE = [
