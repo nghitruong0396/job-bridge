@@ -1,17 +1,22 @@
 {% extends "base.html" %}
-
 {% block title %}Giới thiệu ứng viên | JobBridge{% endblock %}
-
 {% block content %}
-    <section>
-        <h1>Giới thiệu ứng viên</h1>
-        <p>Vị trí: {{ job.title }}</p>
-        <p>Thưởng giới thiệu: {{ job.bonus|floatformat:2 }}</p>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Gửi giới thiệu</button>
-        </form>
-        <p><a href="{% url 'recruitment_web:job-detail' job.pk %}">Quay lại tin tuyển dụng</a></p>
-    </section>
+    <div class="form-panel">
+        <div class="page-header"><a class="small text-decoration-none"
+   href="{% url 'recruitment_web:job-detail' job.pk %}">← Chi tiết tuyển dụng</a><h1 class="page-title mt-3">Giới thiệu ứng viên</h1><p class="text-body-secondary mb-0">Kết nối ứng viên phù hợp với đội ngũ của bạn.</p></div>
+        <div class="alert alert-primary">
+            <div class="fw-semibold">{{ job.title }}</div>
+            <div class="small mt-1">Thưởng giới thiệu: {{ job.bonus|floatformat:2 }}</div>
+        </div>
+        <section class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% include "includes/form_fields.html" %}
+                    <div class="form-actions"><button class="btn btn-primary" type="submit">Gửi giới thiệu</button><a class="btn btn-outline-secondary"
+   href="{% url 'recruitment_web:job-detail' job.pk %}">Hủy</a></div>
+                </form>
+            </div>
+        </section>
+    </div>
 {% endblock %}

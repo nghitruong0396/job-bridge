@@ -1,34 +1,59 @@
 {% extends "base.html" %}
-
 {% block title %}{{ job.title }} | JobBridge{% endblock %}
-
 {% block content %}
-    <section>
-        <h1>{{ job.title }}</h1>
-        <p>Bộ phận: {{ job.department }}</p>
-        <p>Số lượng tuyển: {{ job.number_of_positions }}</p>
-        <p>Thưởng giới thiệu: {{ job.bonus|floatformat:2 }}</p>
-        <p>Hạn nhận hồ sơ: {{ job.deadline|date:"d/m/Y" }}</p>
-        <p>Trạng thái: {{ job.get_status_display }}</p>
-        <h2>Mô tả công việc</h2>
-        {{ job.description|linebreaks }}
-        <h2>Yêu cầu ứng viên</h2>
-        {{ job.requirements|linebreaks }}
-
-        {% if user.role == "HR" %}
-            <p><a href="{% url 'recruitment_web:job-edit' job.pk %}">Sửa tin tuyển dụng</a></p>
-            <form method="post" action="{% url 'recruitment_web:job-action' job.pk 'open' %}">
-                {% csrf_token %}<p><button type="submit">Mở job</button></p>
-            </form>
-            <form method="post" action="{% url 'recruitment_web:job-action' job.pk 'close' %}">
-                {% csrf_token %}<p><button type="submit">Đóng job</button></p>
-            </form>
-            <form method="post" action="{% url 'recruitment_web:job-action' job.pk 'delete' %}">
-                {% csrf_token %}<p><button type="submit">Xóa mềm job</button></p>
-            </form>
-        {% elif user.role == "EMPLOYEE" %}
-            <p><a href="{% url 'recruitment_web:refer' job.pk %}">Giới thiệu ứng viên</a></p>
-        {% endif %}
-        <p><a href="{% url 'recruitment_web:job-list' %}">Quay lại danh sách</a></p>
+    <div class="page-header"><a class="small text-decoration-none"
+   href="{% url 'recruitment_web:job-list' %}">← Danh sách tuyển dụng</a><div class="d-flex flex-wrap align-items-center gap-3 mt-3"><h1 class="page-title mb-0">{{ job.title }}</h1>{% include "includes/status_badge.html" with value=job.status label=job.get_status_display %}</div><p class="text-body-secondary mt-2 mb-0">{{ job.department }}</p></div>
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+            <section class="card">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Mô tả công việc</h2>
+                    <div class="detail-text">{{ job.description|linebreaks }}</div>
+                    <hr class="my-4">
+                    <h2 class="h5 mb-3">Yêu cầu ứng viên</h2>
+                    <div class="detail-text">{{ job.requirements|linebreaks }}</div>
+                </div>
+            </section>
+        </div>
+        <aside class="col-12 col-lg-4">
+            <section class="card">
+                <div class="card-body">
+                    <h2 class="h5 mb-4">Thông tin tuyển dụng</h2>
+                    <dl class="detail-grid">
+                        <dt>Bộ phận</dt>
+                        <dd>
+                            {{ job.department }}
+                        </dd>
+                        <dt>Số lượng tuyển</dt>
+                        <dd>
+                            {{ job.number_of_positions }}
+                        </dd>
+                        <dt>Hạn nhận hồ sơ</dt>
+                        <dd>
+                            {{ job.deadline|date:"d/m/Y" }}
+                        </dd>
+                        <dt>Thưởng giới thiệu</dt>
+                        <dd class="fs-4 text-primary fw-semibold">
+                            {{ job.bonus|floatformat:2 }}
+                        </dd>
+                    </dl>
+                    {% if user.role == "HR" %}
+                        <div class="d-grid gap-2"><a class="btn btn-primary"
+   href="{% url 'recruitment_web:job-edit' job.pk %}">Sửa tin tuyển dụng</a>
+                            <form class="d-grid"
+                                  method="post"
+                                  action="{% url 'recruitment_web:job-action' job.pk 'open' %}">{% csrf_token %}<button class="btn btn-outline-success" type="submit">Mở job</button></form>
+                            <form class="d-grid"
+                                  method="post"
+                                  action="{% url 'recruitment_web:job-action' job.pk 'close' %}">{% csrf_token %}<button class="btn btn-outline-secondary" type="submit">Đóng job</button></form>
+                            <form class="d-grid border-top pt-3 mt-2"
+                                  method="post"
+                                  action="{% url 'recruitment_web:job-action' job.pk 'delete' %}">{% csrf_token %}<button class="btn btn-outline-danger" type="submit">Xóa mềm job</button></form>
+                        </div>
+{% elif user.role == "EMPLOYEE" %}<a class="btn btn-primary w-100"
+   href="{% url 'recruitment_web:refer' job.pk %}">Giới thiệu ứng viên</a>{% endif %}
+    </div>
     </section>
+    </aside>
+    </div>
 {% endblock %}
