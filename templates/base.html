@@ -1,57 +1,71 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}JobBridge{% endblock %}</title>
-    <style>
-        body { margin: 0; font-family: Arial, sans-serif; color: #1f2937; background: #f5f6f8; }
-        header { background: #fff; border-bottom: 1px solid #ddd; }
-        nav, main { max-width: 960px; margin: auto; padding: 20px; }
-        nav { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
-        nav strong { margin-right: auto; }
-        nav form { margin: 0; }
-        a { color: #1d4ed8; }
-        main { margin-top: 24px; }
-        section { padding: 24px; background: #fff; border: 1px solid #ddd; border-radius: 8px; }
-        button { padding: 10px 16px; border: 0; border-radius: 4px; background: #1d4ed8; color: #fff; font: inherit; cursor: pointer; }
-        input:not([type="hidden"]), select, textarea { box-sizing: border-box; max-width: 100%; padding: 10px; border: 1px solid #aaa; border-radius: 4px; font: inherit; }
-        label { display: block; margin-bottom: 6px; }
-        .errorlist { color: #b91c1c; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; overflow-wrap: anywhere; }
-    </style>
-</head>
-<body>
-    <header>
-        <nav aria-label="Điều hướng chính">
-            <strong>JobBridge</strong>
-            {% if user.is_authenticated %}
-                <a href="{% url 'recruitment_web:job-list' %}">Tin tuyển dụng</a>
-                <a href="{% url 'recruitment_web:application-list' %}">Hồ sơ giới thiệu</a>
-                {% if user.role == "HR" %}
-                    <a href="{% url 'recruitment_web:candidate-list' %}">Ứng viên</a>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}JobBridge{% endblock %}</title>
+        <link rel="stylesheet"
+              href="{% static 'recruitment/vendor/bootstrap/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'recruitment/css/app.css' %}">
+    </head>
+    <body class="bg-body-tertiary">
+        <a class="visually-hidden-focusable btn btn-primary position-absolute m-2"
+           href="#main-content">Đến nội dung chính</a>
+        <nav class="navbar navbar-expand-xl bg-white border-bottom"
+             aria-label="Điều hướng chính">
+            <div class="container py-2">
+                <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2"
+                   href="{% url 'recruitment_web:home' %}"><span class="brand-mark">JB</span>JobBridge</a>
+                {% if user.is_authenticated %}
+                    <button class="navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#main-nav"
+                            aria-controls="main-nav"
+                            aria-expanded="false"
+                            aria-label="Mở hoặc đóng menu">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="main-nav">
+                        <div class="navbar-nav me-auto gap-xl-1 py-3 py-xl-0">
+                            <a class="nav-link {% if '/jobs/' in request.path %}active{% endif %}"
+                               {% if '/jobs/' in request.path %}aria-current="page"{% endif %}
+                               href="{% url 'recruitment_web:job-list' %}">Tin tuyển dụng</a>
+                            <a class="nav-link {% if '/applications/' in request.path %}active{% endif %}"
+                               {% if '/applications/' in request.path %}aria-current="page"{% endif %}
+                               href="{% url 'recruitment_web:application-list' %}">Hồ sơ giới thiệu</a>
+                            {% if user.role == "HR" %}<a class="nav-link {% if '/candidates/' in request.path %}active{% endif %}"
+   {% if '/candidates/' in request.path %}aria-current="page"{% endif %}
+   href="{% url 'recruitment_web:candidate-list' %}">Ứng viên</a>{% endif %}
+                            <a class="nav-link {% if '/rewards/' in request.path %}active{% endif %}"
+                               {% if '/rewards/' in request.path %}aria-current="page"{% endif %}
+                               href="{% url 'recruitment_web:reward-list' %}">Thưởng</a>
+                        </div>
+                        <div class="d-flex flex-wrap align-items-center gap-3 pb-2 pb-xl-0">
+                            <a class="text-decoration-none account-link"
+                               href="{% url 'accounts_web:profile' %}"><span class="d-block fw-semibold text-body text-truncate">{{ user.full_name }}</span><span class="small text-body-secondary">{{ user.employee_code }} · {{ user.get_role_display }}</span></a>
+                            <form method="post" action="{% url 'accounts_web:logout' %}">{% csrf_token %}<button class="btn btn-outline-secondary btn-sm" type="submit">Đăng xuất</button></form>
+                        </div>
+                    </div>
+                {% else %}
+                    <span class="small text-body-secondary">Kết nối nhân tài nội bộ</span>
                 {% endif %}
-                <a href="{% url 'recruitment_web:reward-list' %}">Thưởng giới thiệu</a>
-                <a href="{% url 'accounts_web:profile' %}">Tài khoản của tôi</a>
-                <form method="post" action="{% url 'accounts_web:logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">Đăng xuất</button>
-                </form>
-            {% else %}
-                <a href="{% url 'accounts_web:login' %}">Đăng nhập</a>
-            {% endif %}
-        </nav>
-    </header>
-    <main>
-        {% if messages %}
-            <div role="status">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
             </div>
-        {% endif %}
-        {% block content %}{% endblock %}
-    </main>
-</body>
+        </nav>
+        <main id="main-content" class="container app-main py-4 py-lg-5">
+            {% for message in messages %}
+                <div class="alert {% if message.level_tag == 'error' %}alert-danger{% elif message.level_tag == 'success' %}alert-success{% elif message.level_tag == 'warning' %}alert-warning{% else %}alert-info{% endif %} alert-dismissible fade show"
+                     role="{% if message.level_tag == 'error' %}alert{% else %}status{% endif %}">{{ message }}<button type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Đóng thông báo"></button></div>
+            {% endfor %}
+            {% block content %}{% endblock %}
+        </main>
+        <footer class="container py-4 small text-body-secondary border-top">
+            JobBridge · Giới thiệu nhân tài, cùng nhau phát triển.
+        </footer>
+        <script src="{% static 'recruitment/vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+    </body>
 </html>

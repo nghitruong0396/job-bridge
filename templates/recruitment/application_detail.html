@@ -1,83 +1,87 @@
 {% extends "base.html" %}
-
 {% block title %}Hồ sơ #{{ application.pk }} | JobBridge{% endblock %}
-
 {% block content %}
-    <section>
-        <h1>Hồ sơ giới thiệu #{{ application.pk }}</h1>
-        <p>Vị trí: {{ application.job.title }}</p>
-        <p>Ứng viên: {{ application.candidate.full_name }}</p>
-        <p>Điện thoại: {{ application.candidate.phone }}</p>
-        <p>Email: {{ application.candidate.email|default:"Chưa cập nhật" }}</p>
-        <p>Địa chỉ: {{ application.candidate.address|default:"Chưa cập nhật" }}</p>
-        <p>Ngày sinh: {{ application.candidate.dob|date:"d/m/Y"|default:"Chưa cập nhật" }}</p>
-        <h2>Kinh nghiệm làm việc</h2>
-        {{ application.candidate.working_experience|default:"Chưa cập nhật"|linebreaks }}
-        <p>Người giới thiệu: {{ application.referrer.full_name }}</p>
-        <p>Trạng thái: {{ application.get_current_stage_display }}</p>
-        <p>Ngày giới thiệu: {{ application.applied_at|date:"d/m/Y H:i" }}</p>
-        <p>Thưởng lúc giới thiệu: {{ application.bonus_amount|floatformat:2 }}</p>
-        {% if application.cv %}
-            <p><a href="{% url 'recruitment:application-cv' application.pk %}">Tải CV</a></p>
-        {% else %}
-            <p>Chưa có CV.</p>
-        {% endif %}
-
-        {% if user.role == "HR" %}
-            <p><a href="{% url 'recruitment_web:candidate-detail' application.candidate_id %}">Xem và cập nhật hồ sơ ứng viên</a></p>
-            <h2>Ghi chú nội bộ</h2>
-            <form method="post" action="{% url 'recruitment_web:application-note' application.pk %}">
-                {% csrf_token %}{{ note_form.as_p }}
-                <button type="submit">Lưu ghi chú</button>
-            </form>
-            <h2>Chuyển trạng thái</h2>
-            {% if can_change_stage %}
-                <form method="post" action="{% url 'recruitment_web:application-stage' application.pk %}">
-                    {% csrf_token %}{{ stage_form.as_p }}
-                    <button type="submit">Chuyển trạng thái</button>
-                </form>
-            {% else %}
-                <p>Hồ sơ đã kết thúc, không thể chuyển trạng thái.</p>
-                {{ stage_form.errors }}
+    <div class="page-header"><a class="small text-decoration-none"
+   href="{% url 'recruitment_web:application-list' %}">← Danh sách hồ sơ</a><div class="d-flex flex-wrap align-items-center gap-3 mt-3"><h1 class="page-title mb-0">Hồ sơ giới thiệu #{{ application.pk }}</h1>{% include "includes/status_badge.html" with value=application.current_stage label=application.get_current_stage_display %}</div><p class="text-body-secondary mt-2 mb-0">{{ application.job.title }}</p></div>
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-7">
+            <section class="card">
+                <div class="card-body">
+                    <h2 class="h5 mb-4">{{ application.candidate.full_name }}</h2>
+                    <dl class="row detail-grid mb-0">
+                        <dt class="col-sm-4">Điện thoại</dt>
+                        <dd class="col-sm-8">
+                            {{ application.candidate.phone }}
+                        </dd>
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">
+                            {{ application.candidate.email|default:"Chưa cập nhật" }}
+                        </dd>
+                        <dt class="col-sm-4">Địa chỉ</dt>
+                        <dd class="col-sm-8">
+                            {{ application.candidate.address|default:"Chưa cập nhật" }}
+                        </dd>
+                        <dt class="col-sm-4">Ngày sinh</dt>
+                        <dd class="col-sm-8">
+                            {{ application.candidate.dob|date:"d/m/Y"|default:"Chưa cập nhật" }}
+                        </dd>
+                        <dt class="col-sm-4">Người giới thiệu</dt>
+                        <dd class="col-sm-8">
+                            {{ application.referrer.full_name }}
+                        </dd>
+                        <dt class="col-sm-4">Ngày giới thiệu</dt>
+                        <dd class="col-sm-8">
+                            {{ application.applied_at|date:"d/m/Y H:i" }}
+                        </dd>
+                        <dt class="col-sm-4">Thưởng lúc giới thiệu</dt>
+                        <dd class="col-sm-8 fw-semibold text-primary">
+                            {{ application.bonus_amount|floatformat:2 }}
+                        </dd>
+                    </dl>
+                    <hr class="my-4">
+                    <h2 class="h6">Kinh nghiệm làm việc</h2>
+                    <div class="detail-text">{{ application.candidate.working_experience|default:"Chưa cập nhật"|linebreaks }}</div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-4">{% if application.cv %}<a class="btn btn-outline-primary"
+   href="{% url 'recruitment:application-cv' application.pk %}">Tải CV</a>{% else %}<span class="text-body-secondary small">Chưa có CV.</span>{% endif %}{% if user.role == "HR" %}<a class="btn btn-outline-secondary"
+   href="{% url 'recruitment_web:candidate-detail' application.candidate_id %}">Hồ sơ ứng viên</a>{% endif %}</div>
+                </div>
+            </section>
+        </div>
+        <aside class="col-12 col-lg-5 d-flex flex-column gap-4">
+            {% if user.role == "HR" %}
+                <section class="card">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Chuyển trạng thái</h2>
+                        {% if can_change_stage %}<form method="post"
+      action="{% url 'recruitment_web:application-stage' application.pk %}">{% csrf_token %}{% include "includes/form_fields.html" with form=stage_form field_prefix="stage" %}<button class="btn btn-primary" type="submit">Chuyển trạng thái</button></form>{% else %}<p class="text-body-secondary mb-0">Hồ sơ đã kết thúc, không thể chuyển trạng thái.</p>{% if stage_form.errors %}<div class="alert alert-danger mt-3 mb-0" role="alert">{{ stage_form.errors }}</div>{% endif %}{% endif %}
+                    </div>
+                </section>
+                <section class="card"><div class="card-body"><h2 class="h5 mb-3">Ghi chú nội bộ</h2><form method="post"
+      action="{% url 'recruitment_web:application-note' application.pk %}">{% csrf_token %}{% include "includes/form_fields.html" with form=note_form field_prefix="note" %}<button class="btn btn-outline-primary" type="submit">Lưu ghi chú</button></form></div></section>
+            {% elif user.role == "EMPLOYEE" %}
+                <section class="card"><div class="card-body"><h2 class="h5 mb-3">Upload CV</h2><form method="post"
+      enctype="multipart/form-data"
+      action="{% url 'recruitment_web:application-cv' application.pk %}">{% csrf_token %}{% include "includes/form_fields.html" with form=cv_form field_prefix="cv" %}<button class="btn btn-primary" type="submit">Lưu CV</button></form></div></section>
             {% endif %}
-        {% elif user.role == "EMPLOYEE" %}
-            <h2>Upload CV</h2>
-            <form method="post" enctype="multipart/form-data" action="{% url 'recruitment_web:application-cv' application.pk %}">
-                {% csrf_token %}{{ cv_form.as_p }}
-                <button type="submit">Lưu CV</button>
-            </form>
-        {% endif %}
-
-        <h2>Lịch sử tuyển dụng</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Trạng thái cũ</th><th>Trạng thái mới</th><th>Thời gian</th>
-                    {% if user.role == "HR" %}<th>Người thực hiện</th><th>Ghi chú nội bộ</th>{% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for entry in history %}
-                    <tr>
-                        <td>{{ entry.from_stage }}</td><td>{{ entry.to_stage }}</td>
-                        <td>{{ entry.changed_at|date:"d/m/Y H:i" }}</td>
-                        {% if user.role == "HR" %}<td>{{ entry.changed_by.full_name }}</td><td>{{ entry.note|linebreaks }}</td>{% endif %}
-                    </tr>
-                {% empty %}
-                    <tr><td colspan="{% if user.role == 'HR' %}5{% else %}3{% endif %}">Chưa có lịch sử chuyển trạng thái.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <h2>Thưởng giới thiệu</h2>
-        {% if reward %}
-            <p>Đã xác nhận: {{ reward.total_amount|floatformat:2 }}</p>
-        {% elif user.role == "HR" and application.current_stage == "HIRED" %}
-            <form method="post" action="{% url 'recruitment_web:confirm-reward' application.pk %}">
-                {% csrf_token %}<button type="submit">Xác nhận thưởng</button>
-            </form>
-        {% else %}
-            <p>Chưa có thưởng được xác nhận.</p>
-        {% endif %}
-        <p><a href="{% url 'recruitment_web:application-list' %}">Quay lại danh sách hồ sơ</a></p>
+            <section class="card">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Thưởng giới thiệu</h2>
+                    {% if reward %}<span class="badge text-bg-success mb-2">Đã xác nhận</span><p class="fs-4 fw-semibold text-primary mb-0 text-break">{{ reward.total_amount|floatformat:2 }}</p>{% elif user.role == "HR" and application.current_stage == "HIRED" %}<p class="text-body-secondary">Hồ sơ đã được tuyển và chưa có thưởng được xác nhận.</p><form method="post"
+      action="{% url 'recruitment_web:confirm-reward' application.pk %}">{% csrf_token %}<button class="btn btn-success" type="submit">Xác nhận thưởng</button></form>{% else %}<p class="text-body-secondary mb-0">Chưa có thưởng được xác nhận.</p>{% endif %}
+                </div>
+            </section>
+        </aside>
+    </div>
+    <section class="card">
+        <div class="card-header">
+            <h2 class="h6 mb-0">Lịch sử tuyển dụng</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th scope="col">Trạng thái cũ</th><th scope="col">Trạng thái mới</th><th scope="col">Thời gian</th>{% if user.role == "HR" %}<th scope="col">Người thực hiện</th><th scope="col">Ghi chú nội bộ</th>{% endif %}</tr></thead>
+                <tbody>{% for entry in history %}<tr><td>{% include "includes/status_badge.html" with value=entry.from_stage label=entry.from_stage %}</td><td>{% include "includes/status_badge.html" with value=entry.to_stage label=entry.to_stage %}</td><td class="text-nowrap">{{ entry.changed_at|date:"d/m/Y H:i" }}</td>{% if user.role == "HR" %}<td>{{ entry.changed_by.full_name }}</td><td class="detail-text">{{ entry.note|linebreaks }}</td>{% endif %}</tr>{% empty %}<tr><td class="empty-state"
+    colspan="{% if user.role == 'HR' %}5{% else %}3{% endif %}">Chưa có lịch sử chuyển trạng thái.</td></tr>{% endfor %}</tbody>
+            </table>
+        </div>
     </section>
 {% endblock %}

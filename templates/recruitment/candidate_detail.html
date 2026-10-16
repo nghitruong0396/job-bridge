@@ -1,34 +1,65 @@
 {% extends "base.html" %}
-
 {% block title %}{{ candidate.full_name }} | JobBridge{% endblock %}
-
 {% block content %}
-    <section>
-        <h1>{{ candidate.full_name }}</h1>
-        <p>Điện thoại: {{ candidate.phone }}</p>
-        <p>Email: {{ candidate.email|default:"Chưa cập nhật" }}</p>
-        <p>Địa chỉ: {{ candidate.address|default:"Chưa cập nhật" }}</p>
-        <p>Ngày sinh: {{ candidate.dob|date:"d/m/Y"|default:"Chưa cập nhật" }}</p>
-        <h2>Kinh nghiệm làm việc</h2>
-        {{ candidate.working_experience|default:"Chưa cập nhật"|linebreaks }}
-        <h2>Ghi chú nội bộ</h2>
-        {{ candidate.note|default:"Chưa có ghi chú"|linebreaks }}
-        <p><a href="{% url 'recruitment_web:candidate-edit' candidate.pk %}">Cập nhật hồ sơ</a></p>
-        <h2>Các lần giới thiệu</h2>
-        <table>
-            <thead><tr><th>Mã hồ sơ</th><th>Vị trí</th><th>Người giới thiệu</th><th>Trạng thái</th></tr></thead>
-            <tbody>
-                {% for application in applications %}
+    <div class="page-header d-flex flex-wrap justify-content-between align-items-start gap-3"><div><a class="small text-decoration-none"
+   href="{% url 'recruitment_web:candidate-list' %}">← Danh sách ứng viên</a><h1 class="page-title mt-3 mb-0">{{ candidate.full_name }}</h1></div><a class="btn btn-primary"
+   href="{% url 'recruitment_web:candidate-edit' candidate.pk %}">Cập nhật hồ sơ</a></div>
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-7">
+            <section class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-4">Thông tin ứng viên</h2>
+                    <dl class="row detail-grid mb-0">
+                        <dt class="col-sm-4">Điện thoại</dt>
+                        <dd class="col-sm-8">
+                            {{ candidate.phone }}
+                        </dd>
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">
+                            {{ candidate.email|default:"Chưa cập nhật" }}
+                        </dd>
+                        <dt class="col-sm-4">Địa chỉ</dt>
+                        <dd class="col-sm-8">
+                            {{ candidate.address|default:"Chưa cập nhật" }}
+                        </dd>
+                        <dt class="col-sm-4">Ngày sinh</dt>
+                        <dd class="col-sm-8">
+                            {{ candidate.dob|date:"d/m/Y"|default:"Chưa cập nhật" }}
+                        </dd>
+                    </dl>
+                </div>
+            </section>
+        </div>
+        <div class="col-12 col-lg-5">
+            <section class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Kinh nghiệm làm việc</h2>
+                    <div class="detail-text">{{ candidate.working_experience|default:"Chưa cập nhật"|linebreaks }}</div>
+                    <hr class="my-4">
+                    <h2 class="h5 mb-3">Ghi chú nội bộ</h2>
+                    <div class="detail-text text-body-secondary">{{ candidate.note|default:"Chưa có ghi chú"|linebreaks }}</div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <section class="card">
+        <div class="card-header">
+            <h2 class="h6 mb-0">Các lần giới thiệu</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
                     <tr>
-                        <td><a href="{% url 'recruitment_web:application-detail' application.pk %}">#{{ application.pk }}</a></td>
-                        <td>{{ application.job.title }}</td><td>{{ application.referrer.full_name }}</td>
-                        <td>{{ application.get_current_stage_display }}</td>
+                        <th scope="col">Mã hồ sơ</th>
+                        <th scope="col">Vị trí</th>
+                        <th scope="col">Người giới thiệu</th>
+                        <th scope="col">Trạng thái</th>
                     </tr>
-                {% empty %}
-                    <tr><td colspan="4">Chưa có hồ sơ giới thiệu.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <p><a href="{% url 'recruitment_web:candidate-list' %}">Quay lại danh sách ứng viên</a></p>
+                </thead>
+                <tbody>
+                    {% for application in applications %}<tr><td><a href="{% url 'recruitment_web:application-detail' application.pk %}">#{{ application.pk }}</a></td><td>{{ application.job.title }}</td><td>{{ application.referrer.full_name }}</td><td>{% include "includes/status_badge.html" with value=application.current_stage label=application.get_current_stage_display %}</td></tr>{% empty %}<tr><td class="empty-state" colspan="4">Chưa có hồ sơ giới thiệu.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
     </section>
 {% endblock %}

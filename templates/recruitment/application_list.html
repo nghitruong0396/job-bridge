@@ -1,39 +1,44 @@
 {% extends "base.html" %}
-
 {% block title %}Hồ sơ giới thiệu | JobBridge{% endblock %}
-
 {% block content %}
-    <section>
-        <h1>Hồ sơ giới thiệu</h1>
-        <form method="get">
-            <label for="stage">Trạng thái tuyển dụng</label>
-            <select id="stage" name="stage">
-                <option value="">Tất cả</option>
-                {% for value, label in stages %}
-                    <option value="{{ value }}" {% if selected_stage == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Lọc</button>
-        </form>
-        {% if user.role == "HR" %}
-            <p><a href="{% url 'recruitment_web:application-list' %}?pending_reward=1">Hồ sơ HIRED chưa xác nhận thưởng</a></p>
-        {% endif %}
-        {% if pending_reward %}<p>Đang xem hồ sơ HIRED chưa có thưởng.</p>{% endif %}
-        <table>
-            <thead><tr><th>Mã hồ sơ</th><th>Ứng viên</th><th>Vị trí</th><th>Trạng thái</th><th>Thưởng lúc giới thiệu</th></tr></thead>
-            <tbody>
-                {% for application in applications %}
+    <div class="page-header d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <h1 class="page-title">Hồ sơ giới thiệu</h1>
+            <p class="text-body-secondary mb-0">Theo dõi ứng viên và tiến trình tuyển dụng.</p>
+        </div>
+        {% if user.role == "HR" %}<a class="btn btn-outline-primary"
+   href="{% url 'recruitment_web:application-list' %}?pending_reward=1">HIRED chờ xác nhận thưởng</a>{% endif %}
+    </div>
+    <section class="card">
+        <div class="card-body border-bottom">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-12 col-sm-7 col-lg-4"><label class="form-label" for="stage">Trạng thái tuyển dụng</label><select class="form-select" id="stage" name="stage"><option value="">Tất cả trạng thái</option>{% for value, label in stages %}<option value="{{ value }}"
+        {% if selected_stage == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+                {% if pending_reward %}<input type="hidden" name="pending_reward" value="1">{% endif %}
+                <div class="col-12 col-sm-auto d-flex gap-2"><button class="btn btn-primary" type="submit">Lọc hồ sơ</button><a class="btn btn-outline-secondary"
+   href="{% url 'recruitment_web:application-list' %}">Bỏ lọc</a></div>
+            </form>
+            {% if pending_reward %}<p class="small text-primary mt-3 mb-0">Đang xem hồ sơ HIRED chưa có thưởng.</p>{% endif %}
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
                     <tr>
-                        <td><a href="{% url 'recruitment_web:application-detail' application.pk %}">#{{ application.pk }}</a></td>
-                        <td>{{ application.candidate.full_name }}</td>
-                        <td>{{ application.job.title }}</td>
-                        <td>{{ application.get_current_stage_display }}</td>
-                        <td>{{ application.bonus_amount|floatformat:2 }}</td>
+                        <th scope="col">Mã hồ sơ</th>
+                        <th scope="col">Ứng viên</th>
+                        <th scope="col">Vị trí</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col">Thưởng lúc giới thiệu</th>
                     </tr>
-                {% empty %}
-                    <tr><td colspan="5">Chưa có hồ sơ phù hợp.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </section>
+                </thead>
+                <tbody>
+                    {% for application in applications %}
+                        <tr>
+                            <td><a href="{% url 'recruitment_web:application-detail' application.pk %}">#{{ application.pk }}</a></td><td>{{ application.candidate.full_name }}</td><td>{{ application.job.title }}</td>
+                            <td>{% include "includes/status_badge.html" with value=application.current_stage label=application.get_current_stage_display %}</td><td class="text-nowrap">{{ application.bonus_amount|floatformat:2 }}</td>
+                        </tr>{% empty %}<tr><td class="empty-state"
+    colspan="5">Chưa có hồ sơ phù hợp.</td></tr>{% endfor %}</tbody>
+                </table>
+            </div>
+        </section>
 {% endblock %}

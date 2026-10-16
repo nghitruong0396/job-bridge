@@ -1,33 +1,37 @@
 {% extends "base.html" %}
-
 {% block title %}Tin tuyển dụng | JobBridge{% endblock %}
-
 {% block content %}
-    <section>
-        <h1>Tin tuyển dụng</h1>
-        {% if user.role == "HR" %}
-            <p><a href="{% url 'recruitment_web:job-create' %}">Tạo tin tuyển dụng</a></p>
-        {% endif %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Vị trí</th><th>Bộ phận</th><th>Thưởng giới thiệu</th>
-                    <th>Hạn nhận hồ sơ</th><th>Trạng thái</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for job in jobs %}
+    <div class="page-header d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div><h1 class="page-title">Tin tuyển dụng</h1><p class="text-body-secondary mb-0">{% if user.role == "HR" %}Quản lý vị trí tuyển dụng và mức thưởng giới thiệu.{% else %}Khám phá các vị trí đang mở và giới thiệu ứng viên phù hợp.{% endif %}</p></div>
+        {% if user.role == "HR" %}<a class="btn btn-primary"
+   href="{% url 'recruitment_web:job-create' %}">Tạo tin tuyển dụng</a>{% endif %}
+    </div>
+    <section class="card">
+        <div class="card-header d-flex align-items-center gap-2">
+            <h2 class="h6 mb-0">Danh sách tuyển dụng</h2>
+            <span class="badge text-bg-light border">{{ jobs|length }} vị trí</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
                     <tr>
-                        <td><a href="{% url 'recruitment_web:job-detail' job.pk %}">{{ job.title }}</a></td>
-                        <td>{{ job.department }}</td>
-                        <td>{{ job.bonus|floatformat:2 }}</td>
-                        <td>{{ job.deadline|date:"d/m/Y" }}</td>
-                        <td>{{ job.get_status_display }}</td>
+                        <th scope="col">Vị trí</th>
+                        <th scope="col">Bộ phận</th>
+                        <th scope="col">Thưởng giới thiệu</th>
+                        <th scope="col">Hạn nhận hồ sơ</th>
+                        <th scope="col">Trạng thái</th>
                     </tr>
-                {% empty %}
-                    <tr><td colspan="5">Chưa có tin tuyển dụng phù hợp.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </section>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                        <tr>
+                            <td><a href="{% url 'recruitment_web:job-detail' job.pk %}">{{ job.title }}</a></td><td>{{ job.department }}</td>
+                            <td class="text-nowrap fw-semibold">{{ job.bonus|floatformat:2 }}</td>
+                            <td class="text-nowrap">{{ job.deadline|date:"d/m/Y" }}</td>
+                            <td>{% include "includes/status_badge.html" with value=job.status label=job.get_status_display %}</td>
+                        </tr>{% empty %}<tr><td class="empty-state"
+    colspan="5">Chưa có tin tuyển dụng phù hợp.</td></tr>{% endfor %}</tbody>
+                </table>
+            </div>
+        </section>
 {% endblock %}

@@ -1,24 +1,35 @@
 {% extends "base.html" %}
-
 {% block title %}Thưởng giới thiệu | JobBridge{% endblock %}
-
 {% block content %}
-    <section>
-        <h1>Thưởng giới thiệu</h1>
-        <p>Tổng thưởng đã xác nhận: <strong>{{ total_amount|floatformat:2 }}</strong></p>
-        <table>
-            <thead><tr><th>Mã hồ sơ</th><th>Vị trí</th><th>Người nhận</th><th>Số tiền</th><th>Ngày xác nhận</th></tr></thead>
-            <tbody>
-                {% for reward in rewards %}
+    <div class="page-header"><h1 class="page-title">Thưởng giới thiệu</h1><p class="text-body-secondary mb-0">{% if user.role == "HR" %}Các khoản thưởng giới thiệu đã được xác nhận.{% else %}Theo dõi các khoản thưởng đã được xác nhận của bạn.{% endif %}</p></div>
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-7 col-lg-5">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <p class="mb-2 text-white">Tổng thưởng đã xác nhận</p>
+                    <p class="fs-3 fw-semibold mb-1 text-break">{{ total_amount|floatformat:2 }}</p>
+                    <span class="small">{{ rewards|length }} khoản thưởng</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="card">
+        <div class="card-header">
+            <h2 class="h6 mb-0">Chi tiết các khoản thưởng</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
                     <tr>
-                        <td><a href="{% url 'recruitment_web:application-detail' reward.application_id %}">#{{ reward.application_id }}</a></td>
-                        <td>{{ reward.application.job.title }}</td><td>{{ reward.employee.full_name }}</td>
-                        <td>{{ reward.total_amount|floatformat:2 }}</td><td>{{ reward.created_at|date:"d/m/Y H:i" }}</td>
+                        <th scope="col">Mã hồ sơ</th>
+                        <th scope="col">Vị trí</th>
+                        <th scope="col">Người nhận</th>
+                        <th scope="col">Số tiền</th>
+                        <th scope="col">Ngày xác nhận</th>
                     </tr>
-                {% empty %}
-                    <tr><td colspan="5">Chưa có thưởng được xác nhận.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>{% for reward in rewards %}<tr><td><a href="{% url 'recruitment_web:application-detail' reward.application_id %}">#{{ reward.application_id }}</a></td><td>{{ reward.application.job.title }}</td><td>{{ reward.employee.full_name }}</td><td class="text-nowrap fw-semibold">{{ reward.total_amount|floatformat:2 }}</td><td class="text-nowrap">{{ reward.created_at|date:"d/m/Y H:i" }}</td></tr>{% empty %}<tr><td class="empty-state" colspan="5">Chưa có thưởng được xác nhận.</td></tr>{% endfor %}</tbody>
+            </table>
+        </div>
     </section>
 {% endblock %}
