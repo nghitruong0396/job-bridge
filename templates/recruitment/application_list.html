@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load ui %}
 {% block title %}Hồ sơ giới thiệu | JobBridge{% endblock %}
 {% block content %}
     <div class="page-header d-flex flex-wrap justify-content-between align-items-start gap-3">
@@ -35,7 +36,7 @@
                     {% for application in applications %}
                         <tr>
                             <td><a href="{% url 'recruitment_web:application-detail' application.pk %}">#{{ application.pk }}</a></td><td>{{ application.candidate.full_name }}</td><td>{{ application.job.title }}</td>
-                            <td>{% include "includes/status_badge.html" with value=application.current_stage label=application.get_current_stage_display %}</td><td class="text-nowrap">{{ application.bonus_amount|floatformat:2 }}</td>
+                            <td>{% include "includes/status_badge.html" with value=application.current_stage label=application.get_current_stage_display %}</td><td class="text-nowrap">{{ application.bonus_amount|vnd }}</td>
                         </tr>{% empty %}<tr><td class="empty-state"
     colspan="5">Chưa có hồ sơ phù hợp.</td></tr>{% endfor %}</tbody>
                 </table>

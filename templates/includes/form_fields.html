@@ -6,7 +6,14 @@
         {% with input_id=field|field_id:prefix %}
             <div class="mb-3">
                 <label class="form-label" for="{{ input_id }}">{{ field.label }}{% if field.field.required %}<span class="text-danger" aria-hidden="true"> *</span>{% endif %}</label>
-                {{ field|bootstrap_field:prefix }}
+                {% if field.field.currency %}
+                    <div class="input-group has-validation">
+                        {{ field|bootstrap_field:prefix }}
+                        <span class="input-group-text" id="{{ input_id }}_currency">{{ field.field.currency }}</span>
+                    </div>
+                {% else %}
+                    {{ field|bootstrap_field:prefix }}
+                {% endif %}
                 {% if field.help_text %}<div class="form-text"
      id="{{ input_id }}_helptext">{{ field.help_text }}</div>{% endif %}
                 {% if field.errors %}<div class="invalid-feedback d-block" id="{{ input_id }}_error">{% for error in field.errors %}<div>{{ error }}</div>{% endfor %}</div>{% endif %}

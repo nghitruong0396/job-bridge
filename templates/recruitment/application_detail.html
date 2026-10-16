@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load ui %}
 {% block title %}Hồ sơ #{{ application.pk }} | JobBridge{% endblock %}
 {% block content %}
     <div class="page-header"><a class="small text-decoration-none"
@@ -35,7 +36,7 @@
                         </dd>
                         <dt class="col-sm-4">Thưởng lúc giới thiệu</dt>
                         <dd class="col-sm-8 fw-semibold text-primary">
-                            {{ application.bonus_amount|floatformat:2 }}
+                            {{ application.bonus_amount|vnd }}
                         </dd>
                     </dl>
                     <hr class="my-4">
@@ -66,7 +67,7 @@
             <section class="card">
                 <div class="card-body">
                     <h2 class="h5 mb-3">Thưởng giới thiệu</h2>
-                    {% if reward %}<span class="badge text-bg-success mb-2">Đã xác nhận</span><p class="fs-4 fw-semibold text-primary mb-0 text-break">{{ reward.total_amount|floatformat:2 }}</p>{% elif user.role == "HR" and application.current_stage == "HIRED" %}<p class="text-body-secondary">Hồ sơ đã được tuyển và chưa có thưởng được xác nhận.</p><form method="post"
+                    {% if reward %}<span class="badge text-bg-success mb-2">Đã xác nhận</span><p class="fs-4 fw-semibold text-primary mb-0 text-break">{{ reward.total_amount|vnd }}</p>{% elif user.role == "HR" and application.current_stage == "HIRED" %}<p class="text-body-secondary">Hồ sơ đã được tuyển và chưa có thưởng được xác nhận.</p><form method="post"
       action="{% url 'recruitment_web:confirm-reward' application.pk %}">{% csrf_token %}<button class="btn btn-success" type="submit">Xác nhận thưởng</button></form>{% else %}<p class="text-body-secondary mb-0">Chưa có thưởng được xác nhận.</p>{% endif %}
                 </div>
             </section>

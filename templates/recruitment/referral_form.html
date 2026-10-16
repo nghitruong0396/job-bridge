@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load ui %}
 {% block title %}Giới thiệu ứng viên | JobBridge{% endblock %}
 {% block content %}
     <div class="form-panel">
@@ -6,7 +7,7 @@
    href="{% url 'recruitment_web:job-detail' job.pk %}">← Chi tiết tuyển dụng</a><h1 class="page-title mt-3">Giới thiệu ứng viên</h1><p class="text-body-secondary mb-0">Kết nối ứng viên phù hợp với đội ngũ của bạn.</p></div>
         <div class="alert alert-primary">
             <div class="fw-semibold">{{ job.title }}</div>
-            <div class="small mt-1">Thưởng giới thiệu: {{ job.bonus|floatformat:2 }}</div>
+            <div class="small mt-1">Thưởng giới thiệu: {{ job.bonus|vnd }}</div>
         </div>
         <section class="card">
             <div class="card-body">

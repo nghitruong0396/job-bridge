@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load ui %}
 {% block title %}Tin tuyển dụng | JobBridge{% endblock %}
 {% block content %}
     <div class="page-header d-flex flex-wrap justify-content-between align-items-start gap-3">
@@ -26,7 +27,7 @@
                     {% for job in jobs %}
                         <tr>
                             <td><a href="{% url 'recruitment_web:job-detail' job.pk %}">{{ job.title }}</a></td><td>{{ job.department }}</td>
-                            <td class="text-nowrap fw-semibold">{{ job.bonus|floatformat:2 }}</td>
+                            <td class="text-nowrap fw-semibold">{{ job.bonus|vnd }}</td>
                             <td class="text-nowrap">{{ job.deadline|date:"d/m/Y" }}</td>
                             <td>{% include "includes/status_badge.html" with value=job.status label=job.get_status_display %}</td>
                         </tr>{% empty %}<tr><td class="empty-state"

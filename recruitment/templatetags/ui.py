@@ -1,7 +1,15 @@
 from django import forms, template
 
+from recruitment.utils import format_vnd_number
+
 
 register = template.Library()
+
+
+@register.filter
+def vnd(value):
+    amount = format_vnd_number(value)
+    return f"{amount} VNĐ" if amount else ""
 
 
 @register.filter
@@ -20,6 +28,8 @@ def bootstrap_field(field, prefix=""):
     input_id = field_id(field, prefix)
     attrs = {"class": css_class, "id": input_id}
     descriptions = []
+    if getattr(field.field, "currency", None):
+        descriptions.append(f"{input_id}_currency")
     if field.help_text:
         descriptions.append(f"{input_id}_helptext")
     if field.errors:

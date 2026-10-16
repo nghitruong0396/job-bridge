@@ -1,6 +1,18 @@
 import re
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 from django.core.exceptions import ValidationError
+
+
+def format_vnd_number(value):
+    try:
+        amount = Decimal(str(value))
+        if not amount.is_finite():
+            return ""
+        amount = amount.quantize(Decimal("1"), rounding=ROUND_HALF_UP)
+        return f"{amount:,}"
+    except (InvalidOperation, ValueError, TypeError):
+        return ""
 
 
 def normalize_phone(phone):

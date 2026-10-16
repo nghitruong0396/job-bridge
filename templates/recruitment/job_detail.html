@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load ui %}
 {% block title %}{{ job.title }} | JobBridge{% endblock %}
 {% block content %}
     <div class="page-header"><a class="small text-decoration-none"
@@ -34,7 +35,7 @@
                         </dd>
                         <dt>Thưởng giới thiệu</dt>
                         <dd class="fs-4 text-primary fw-semibold">
-                            {{ job.bonus|floatformat:2 }}
+                            {{ job.bonus|vnd }}
                         </dd>
                     </dl>
                     {% if user.role == "HR" %}

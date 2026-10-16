@@ -1,10 +1,13 @@
 from django import forms
 
+from .fields import VNDField
 from .models import Application, Candidate, JobPost
 from .validators import validate_cv
 
 
 class JobPostForm(forms.ModelForm):
+    bonus = VNDField(label="Thưởng giới thiệu")
+
     class Meta:
         model = JobPost
         fields = (
