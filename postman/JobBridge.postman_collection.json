@@ -291,7 +291,7 @@
                     "type": "text/javascript",
                     "exec": [
                       "const now = new Date();",
-                      "pm.collectionVariables.set(\"title\", \"Lập trình viên Python \"",
+                      "pm.collectionVariables.set(\"title\", \"Lập trình viên Python\");",
                       "pm.collectionVariables.set(\"deadline\", new Date(now.getTime() + 30 * 86400000).toISOString().slice(0, 10));",
                       "pm.collectionVariables.unset(\"job_id\");",
                       "pm.collectionVariables.unset(\"application_id\");",
@@ -1420,7 +1420,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const now = new Date();",
-                  "pm.collectionVariables.set(\"crud_title\", \"Lập trình viên Python \"",
+                  "pm.collectionVariables.set(\"crud_title\", \"Lập trình viên Python\");",
                   "pm.collectionVariables.set(\"crud_deadline\", new Date(now.getTime() + 30 * 86400000).toISOString().slice(0, 10));",
                   "pm.collectionVariables.unset(\"crud_job_id\");"
                 ]
