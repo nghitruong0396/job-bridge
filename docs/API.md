@@ -95,7 +95,6 @@ Ví dụ tạo HR:
 | POST | `/api/recruitment/jobs/` | Tạo tin | HR |
 | GET | `/api/recruitment/jobs/{id}/` | Chi tiết tin | HR, nhân viên |
 | PUT | `/api/recruitment/jobs/{id}/` | Cập nhật tin | HR |
-| PATCH | `/api/recruitment/jobs/{id}/` | Cập nhật một phần tin | HR |
 | DELETE | `/api/recruitment/jobs/{id}/` | Xóa tin tuyển dụng | HR |
 | POST | `/api/recruitment/jobs/{id}/open/` | Mở tin | HR |
 | POST | `/api/recruitment/jobs/{id}/close/` | Đóng tin | HR |
@@ -128,9 +127,8 @@ Response gồm các trường trên và `id`, `created_by`, `created_at`, `updat
 | GET | `/api/recruitment/candidates/` | Danh sách | HR |
 | GET | `/api/recruitment/candidates/{id}/` | Chi tiết | HR |
 | PUT | `/api/recruitment/candidates/{id}/` | Cập nhật | HR |
-| PATCH | `/api/recruitment/candidates/{id}/` | Cập nhật một phần | HR |
 
-Các trường cho phép sửa: `full_name`, `email`, `phone`, `address`, `dob`, `working_experience`, `note`. PUT bắt buộc `full_name` và `phone`; PATCH chỉ cần các trường muốn sửa. Response bổ sung `id`, `created_at`, `updated_at`.
+Các trường cho phép sửa bằng PUT: `full_name`, `email`, `phone`, `address`, `dob`, `working_experience`, `note`. PUT bắt buộc `full_name` và `phone`. Response bổ sung `id`, `created_at`, `updated_at`.
 
 Số điện thoại không được trùng ứng viên khác. `note` là ghi chú nội bộ. Ứng viên được tạo khi nhân viên gửi giới thiệu.
 
@@ -142,7 +140,6 @@ Số điện thoại không được trùng ứng viên khác. `note` là ghi ch
 | POST | `/api/recruitment/applications/` | Giới thiệu ứng viên | Nhân viên |
 | GET | `/api/recruitment/applications/{id}/` | Chi tiết hồ sơ | HR hoặc người giới thiệu |
 | PUT | `/api/recruitment/applications/{id}/` | Lưu ghi chú nội bộ | HR |
-| PATCH | `/api/recruitment/applications/{id}/` | Sửa ghi chú nội bộ | HR |
 | GET | `/api/recruitment/applications/{id}/cv/` | Tải file CV | HR hoặc người giới thiệu |
 | POST | `/api/recruitment/applications/{id}/upload-cv/` | Tải lên/thay CV | Người giới thiệu |
 | POST | `/api/recruitment/applications/{id}/change-stage/` | Chuyển trạng thái | HR |
@@ -179,7 +176,7 @@ Response hồ sơ gồm `id`, `job`, thông tin `candidate`, `referrer`, URL t�
 
 ### Ghi chú và chuyển trạng thái
 
-PUT/PATCH hồ sơ chỉ sửa `note`, ví dụ `{"note": "Đã liên hệ ứng viên."}`. Đổi trạng thái phải gọi API `change-stage`:
+PUT hồ sơ chỉ sửa `note`, ví dụ `{"note": "Đã liên hệ ứng viên."}`. Đổi trạng thái phải gọi API `change-stage`:
 
 ```json
 {

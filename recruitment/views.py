@@ -31,6 +31,7 @@ from .serializers import (
 
 
 class JobPostViewSet(viewsets.ModelViewSet):
+    http_method_names = ["get", "post", "put", "delete", "head", "options"]
     serializer_class = JobPostSerializer
 
     def get_permissions(self):
@@ -74,6 +75,7 @@ class CandidateViewSet(
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
+    http_method_names = ["get", "put", "head", "options"]
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
     permission_classes = [IsHR]
@@ -93,10 +95,12 @@ class ApplicationViewSet(
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
+    http_method_names = ["get", "post", "put", "head", "options"]
+
     def get_permissions(self):
         if self.action in ("create", "upload_cv"):
             return [IsEmployee()]
-        if self.action in ("update", "partial_update", "change_stage", "confirm_reward"):
+        if self.action in ("update", "change_stage", "confirm_reward"):
             return [IsHR()]
         return [(IsHR | IsEmployee)()]
 
