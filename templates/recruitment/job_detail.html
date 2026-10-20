@@ -49,7 +49,7 @@
                                   action="{% url 'recruitment_web:job-action' job.pk 'close' %}">{% csrf_token %}<button class="btn btn-outline-secondary" type="submit">Đóng job</button></form>
                             <form class="d-grid border-top pt-3 mt-2"
                                   method="post"
-                                  action="{% url 'recruitment_web:job-action' job.pk 'delete' %}">{% csrf_token %}<button class="btn btn-outline-danger" type="submit">xóa job</button></form>
+                                  action="{% url 'recruitment_web:job-action' job.pk 'delete' %}">{% csrf_token %}<button class="btn btn-outline-danger" type="submit">Xóa job</button></form>
                         </div>
 {% elif user.role == "EMPLOYEE" %}<a class="btn btn-primary w-100"
    href="{% url 'recruitment_web:refer' job.pk %}">Giới thiệu ứng viên</a>{% endif %}

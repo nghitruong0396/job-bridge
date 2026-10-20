@@ -3,7 +3,8 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
+from django.utils import timezone
 
 from accounts.models import User
 
@@ -158,6 +159,44 @@ class Application(models.Model):
                 name="application_bonus_nonnegative",
             ),
         ]
+
+    @classmethod
+    def create_referral(cls, *, job, referrer, phone, cv=None, **candidate_data):
+        phone = normalize_phone(phone)
+        try:
+            employee_phone = normalize_phone(referrer.phone)
+        except ValidationError:
+            employee_phone = None
+        if (
+            phone == employee_phone
+            or candidate_data.get("email", "").strip().lower() == referrer.email.strip().lower()
+        ):
+            raise ValidationError("Không được giới thiệu chính mình.")
+
+        try:
+            with transaction.atomic():
+                job = JobPost.objects.select_for_update().get(pk=job.pk)
+                if (
+                    job.status != JobPost.Status.OPEN
+                    or job.is_deleted
+                    or job.deadline < timezone.localdate()
+                ):
+                    raise ValidationError({"job": "Job phải đang mở, còn hạn và chưa bị xóa."})
+                candidate, _ = Candidate.objects.get_or_create(
+                    phone=phone, defaults=candidate_data
+                )
+                if candidate.email.strip().lower() == referrer.email.strip().lower():
+                    raise ValidationError("Không được giới thiệu chính mình.")
+                if cls.objects.filter(candidate=candidate, job=job).exists():
+                    raise ValidationError("Ứng viên đã được giới thiệu vào job này.")
+                return cls.objects.create(
+                    job=job, candidate=candidate, referrer=referrer,
+                    cv=cv, bonus_amount=job.bonus,
+                )
+        except JobPost.DoesNotExist:
+            raise ValidationError({"job": "Job không còn tồn tại."})
+        except IntegrityError:
+            raise ValidationError("Hồ sơ đã tồn tại. Vui lòng kiểm tra lại.")
 
     def change_stage(self, to_stage, changed_by, note=""):
         if not changed_by.is_active or changed_by.role != User.Role.HR:

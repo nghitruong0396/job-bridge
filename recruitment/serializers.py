@@ -1,5 +1,4 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db import IntegrityError, transaction
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -32,13 +31,6 @@ class JobPostSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "id", "created_by", "created_at", "updated_at", "is_deleted"
         )
-
-    def update(self, instance, validated_data):
-        for field, value in validated_data.items():
-            setattr(instance, field, value)
-        instance.save(update_fields=[*validated_data, "updated_at"])
-        instance.refresh_from_db()
-        return instance
 
 
 class CandidateSerializer(serializers.ModelSerializer):
@@ -107,7 +99,6 @@ class HRApplicationSerializer(EmployeeApplicationSerializer):
     def update(self, instance, validated_data):
         instance.note = validated_data.get("note", instance.note)
         instance.save(update_fields=["note", "updated_at"])
-        instance.refresh_from_db()
         return instance
 
 
@@ -150,35 +141,14 @@ class ApplicationCreateSerializer(serializers.Serializer):
         return attrs
 
     def create(self, validated_data):
-        job_id = validated_data.pop("job").pk
-        cv = validated_data.pop("cv", None)
-        phone = validated_data.pop("phone")
-        referrer = self.context["request"].user
         try:
-            with transaction.atomic():
-                # Khóa job để hai yêu cầu cùng job không tạo hồ sơ trùng.
-                job = JobPost.objects.select_for_update().get(pk=job_id)
-                self.validate_job(job)
-                candidate, _ = Candidate.objects.get_or_create(
-                    phone=phone, defaults=validated_data
-                )
-                if candidate.email.strip().lower() == referrer.email.strip().lower():
-                    raise serializers.ValidationError("Không được giới thiệu chính mình.")
-                if Application.objects.filter(candidate=candidate, job=job).exists():
-                    raise serializers.ValidationError(
-                        "Ứng viên đã được giới thiệu vào job này."
-                    )
-                return Application.objects.create(
-                    job=job,
-                    candidate=candidate,
-                    referrer=referrer,
-                    cv=cv,
-                    bonus_amount=job.bonus,
-                )
-        except JobPost.DoesNotExist:
-            raise serializers.ValidationError({"job": "Job không còn tồn tại."})
-        except IntegrityError:
-            raise serializers.ValidationError("Hồ sơ đã tồn tại. Vui lòng kiểm tra lại.")
+            return Application.create_referral(
+                referrer=self.context["request"].user, **validated_data
+            )
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(
+                error.message_dict if hasattr(error, "message_dict") else error.messages
+            )
 
 
 class ApplicationCVSerializer(serializers.Serializer):

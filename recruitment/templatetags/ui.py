@@ -21,15 +21,11 @@ def field_id(field, prefix=""):
 def bootstrap_field(field, prefix=""):
     widget = field.field.widget
     css_class = "form-select" if isinstance(widget, forms.Select) else "form-control"
-    if isinstance(widget, forms.CheckboxInput):
-        css_class = "form-check-input"
     if field.errors:
         css_class += " is-invalid"
     input_id = field_id(field, prefix)
     attrs = {"class": css_class, "id": input_id}
     descriptions = []
-    if getattr(field.field, "currency", None):
-        descriptions.append(f"{input_id}_currency")
     if field.help_text:
         descriptions.append(f"{input_id}_helptext")
     if field.errors:

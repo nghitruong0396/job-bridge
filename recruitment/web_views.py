@@ -1,24 +1,22 @@
 from decimal import Decimal
 
 from django.contrib import messages
-from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import Sum
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from rest_framework.exceptions import ValidationError
 
 from accounts.decorators import role_required
 from accounts.models import User
 
 from .forms import (
-    ApplicationCVForm, ApplicationNoteForm, ApplicationStageForm,
+    ApplicationNoteForm, ApplicationStageForm,
     CandidateForm, JobPostForm, ReferralForm,
 )
 from .models import Application, Candidate, JobPost, ReferralReward
-from .serializers import ApplicationCreateSerializer, CandidateSerializer, HRApplicationSerializer
 
 
 def visible_jobs(user):
@@ -28,15 +26,12 @@ def visible_jobs(user):
     return jobs
 
 
-def add_serializer_errors(form, errors):
-    if not isinstance(errors, dict):
-        errors = {"non_field_errors": errors}
-    for field, error_list in errors.items():
-        field = field if field in form.fields else None
-        if not isinstance(error_list, (list, tuple)):
-            error_list = [error_list]
-        for error in error_list:
-            form.add_error(field, str(error))
+def add_form_errors(form, error):
+    if hasattr(error, "error_dict"):
+        for field, field_errors in error.error_dict.items():
+            form.add_error(field if field in form.fields else None, field_errors)
+    else:
+        form.add_error(None, error)
 
 
 @role_required(User.Role.HR, User.Role.EMPLOYEE)
@@ -91,20 +86,15 @@ def refer_candidate(request, pk):
         request.FILES if request.method == "POST" else None,
     )
     if request.method == "POST" and form.is_valid():
-        data = {"job": job.pk, **form.cleaned_data}
-        if not data["cv"]:
-            data.pop("cv")
-        serializer = ApplicationCreateSerializer(data=data, context={"request": request})
-        if serializer.is_valid():
-            try:
-                application = serializer.save()
-            except ValidationError as error:
-                add_serializer_errors(form, error.detail)
-            else:
-                messages.success(request, f"Giới thiệu thành công. Mã hồ sơ: #{application.pk}.")
-                return redirect("recruitment_web:application-detail", pk=application.pk)
+        try:
+            application = Application.create_referral(
+                job=job, referrer=request.user, **form.cleaned_data
+            )
+        except ValidationError as error:
+            add_form_errors(form, error)
         else:
-            add_serializer_errors(form, serializer.errors)
+            messages.success(request, f"Giới thiệu thành công. Mã hồ sơ: #{application.pk}.")
+            return redirect("recruitment_web:application-detail", pk=application.pk)
     return render(request, "recruitment/referral_form.html", {"form": form, "job": job})
 
 
@@ -130,9 +120,7 @@ def application_context(request, application, **forms):
     }
     if is_hr:
         context["stage_form"] = ApplicationStageForm(application)
-        context["note_form"] = ApplicationNoteForm(initial={"note": application.note})
-    else:
-        context["cv_form"] = ApplicationCVForm()
+        context["note_form"] = ApplicationNoteForm(instance=application)
     context.update(forms)
     return context
 
@@ -145,12 +133,9 @@ def application_list(request):
         if stage not in Application.Stage.values:
             raise Http404
         applications = applications.filter(current_stage=stage)
-    pending_reward = request.GET.get("pending_reward") == "1"
-    if pending_reward:
-        applications = applications.filter(current_stage=Application.Stage.HIRED, reward__isnull=True)
     return render(request, "recruitment/application_list.html", {
         "applications": applications, "stages": Application.Stage.choices,
-        "selected_stage": stage, "pending_reward": pending_reward,
+        "selected_stage": stage,
     })
 
 
@@ -168,8 +153,8 @@ def application_stage(request, pk):
     if form.is_valid():
         try:
             application.change_stage(changed_by=request.user, **form.cleaned_data)
-        except DjangoValidationError as error:
-            add_serializer_errors(form, error.message_dict if hasattr(error, "message_dict") else error.messages)
+        except ValidationError as error:
+            add_form_errors(form, error)
             application.refresh_from_db()
         else:
             messages.success(request, "Đã chuyển trạng thái và ghi Lịch sử hồ sơ.")
@@ -182,14 +167,12 @@ def application_stage(request, pk):
 @require_POST
 def application_note(request, pk):
     application = get_object_or_404(Application, pk=pk)
-    form = ApplicationNoteForm(request.POST)
+    form = ApplicationNoteForm(request.POST, instance=application)
     if form.is_valid():
-        serializer = HRApplicationSerializer(instance=application, data=form.cleaned_data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            messages.success(request, "Đã lưu ghi chú nội bộ.")
-            return redirect("recruitment_web:application-detail", pk=pk)
-        add_serializer_errors(form, serializer.errors)
+        application = form.save(commit=False)
+        application.save(update_fields=["note", "updated_at"])
+        messages.success(request, "Đã lưu ghi chú nội bộ.")
+        return redirect("recruitment_web:application-detail", pk=pk)
     return render(request, "recruitment/application_detail.html",
                   application_context(request, application, note_form=form))
 
@@ -200,25 +183,11 @@ def confirm_reward(request, pk):
     application = get_object_or_404(Application, pk=pk)
     try:
         application.confirm_reward(confirmed_by=request.user)
-    except DjangoValidationError as error:
+    except ValidationError as error:
         messages.error(request, " ".join(error.messages))
     else:
         messages.success(request, "Đã xác nhận thưởng giới thiệu.")
     return redirect("recruitment_web:application-detail", pk=pk)
-
-
-@role_required(User.Role.EMPLOYEE)
-@require_POST
-def application_cv(request, pk):
-    application = get_object_or_404(visible_applications(request.user), pk=pk)
-    form = ApplicationCVForm(request.POST, request.FILES)
-    if form.is_valid():
-        application.cv = form.cleaned_data["cv"]
-        application.save(update_fields=["cv", "updated_at"])
-        messages.success(request, "Đã cập nhật CV.")
-        return redirect("recruitment_web:application-detail", pk=pk)
-    return render(request, "recruitment/application_detail.html",
-                  application_context(request, application, cv_form=form))
 
 
 @role_required(User.Role.HR)
@@ -240,18 +209,14 @@ def candidate_edit(request, pk):
     candidate = get_object_or_404(Candidate, pk=pk)
     form = CandidateForm(request.POST if request.method == "POST" else None, instance=candidate)
     if request.method == "POST" and form.is_valid():
-        serializer = CandidateSerializer(instance=candidate, data=form.cleaned_data)
-        if serializer.is_valid():
-            try:
-                with transaction.atomic():
-                    serializer.save()
-            except IntegrityError:
-                form.add_error("phone", "Số điện thoại đã thuộc hồ sơ khác.")
-            else:
-                messages.success(request, "Đã cập nhật hồ sơ ứng viên.")
-                return redirect("recruitment_web:candidate-detail", pk=pk)
+        try:
+            with transaction.atomic():
+                form.save()
+        except IntegrityError:
+            form.add_error("phone", "Số điện thoại đã thuộc hồ sơ khác.")
         else:
-            add_serializer_errors(form, serializer.errors)
+            messages.success(request, "Đã cập nhật hồ sơ ứng viên.")
+            return redirect("recruitment_web:candidate-detail", pk=pk)
     return render(request, "recruitment/candidate_form.html", {"candidate": candidate, "form": form})
 
 

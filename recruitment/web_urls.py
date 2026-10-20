@@ -19,7 +19,6 @@ urlpatterns = [
     path("applications/<int:pk>/stage/", web_views.application_stage, name="application-stage"),
     path("applications/<int:pk>/note/", web_views.application_note, name="application-note"),
     path("applications/<int:pk>/confirm-reward/", web_views.confirm_reward, name="confirm-reward"),
-    path("applications/<int:pk>/upload-cv/", web_views.application_cv, name="application-cv"),
     path("candidates/", web_views.candidate_list, name="candidate-list"),
     path("candidates/<int:pk>/", web_views.candidate_detail, name="candidate-detail"),
     path("candidates/<int:pk>/edit/", web_views.candidate_edit, name="candidate-edit"),

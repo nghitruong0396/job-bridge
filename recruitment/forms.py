@@ -1,12 +1,15 @@
 from django import forms
 
-from .fields import VNDField
 from .models import Application, Candidate, JobPost
+from .utils import normalize_phone
 from .validators import validate_cv
 
 
 class JobPostForm(forms.ModelForm):
-    bonus = VNDField(label="Thưởng giới thiệu")
+    bonus = forms.IntegerField(
+        label="Thưởng giới thiệu (VNĐ)", min_value=0, max_value=9999999999,
+        help_text="Nhập số tiền nguyên, ví dụ: 3000000.",
+    )
 
     class Meta:
         model = JobPost
@@ -40,8 +43,14 @@ class ReferralForm(forms.Form):
         widget=forms.ClearableFileInput(attrs={"accept": ".pdf,.doc,.docx"}),
     )
 
+    def clean_phone(self):
+        return normalize_phone(self.cleaned_data["phone"])
+
 
 class CandidateForm(forms.ModelForm):
+    def clean_phone(self):
+        return normalize_phone(self.cleaned_data["phone"])
+
     class Meta:
         model = Candidate
         fields = (
@@ -71,16 +80,8 @@ class ApplicationStageForm(forms.Form):
         ]
 
 
-class ApplicationNoteForm(forms.Form):
-    note = forms.CharField(
-        label="Ghi chú nội bộ", required=False,
-        widget=forms.Textarea(attrs={"rows": 3}),
-    )
-
-
-class ApplicationCVForm(forms.Form):
-    cv = forms.FileField(
-        label="CV", validators=[validate_cv],
-        help_text="PDF, DOC hoặc DOCX. Tối đa 5 MB.",
-        widget=forms.ClearableFileInput(attrs={"accept": ".pdf,.doc,.docx"}),
-    )
+class ApplicationNoteForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ("note",)
+        widgets = {"note": forms.Textarea(attrs={"rows": 3})}
