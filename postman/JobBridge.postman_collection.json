@@ -1,0 +1,1910 @@
+{
+  "info": {
+    "_postman_id": "121ba436-dcce-444f-984a-3ec81c878ff7",
+    "name": "JobBridge",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "30620574"
+  },
+  "item": [
+    {
+      "name": "01 - Tạo tài khoản",
+      "item": [
+        {
+          "name": "01 - Lấy CSRF token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const number = Number(pm.environment.get(\"next_account_number\") || 2);\npm.collectionVariables.set(\"account_number\", number);\npm.collectionVariables.set(\"hr_name\", \"Nhân Sự \" + number);\npm.collectionVariables.set(\"employee_name\", \"Nhân viên \" + number);\npm.collectionVariables.set(\"hr_code\", \"HR_\" + number);\npm.collectionVariables.set(\"employee_code\", \"NV_\" + number);\npm.environment.set(\"hr_email\", \"nhansu\" + number + \"@jobbridge.com\");\npm.environment.set(\"employee_email\", \"nhanvien\" + number + \"@jobbridge.com\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });\nif (pm.response.code === 200) {\n    const data = pm.response.json();\n    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/accounts/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 - Đăng nhập super admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Referer",
+                "value": "{{base_url}}/"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/accounts/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 - Tạo Nhân Sự",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });\nif (pm.response.code === 201) {\n    const data = pm.response.json();\n    pm.test(\"Vai trò HR\", function () { pm.expect(data.user.role).to.eql(\"HR\"); });\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Referer",
+                "value": "{{base_url}}/"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{hr_email}}\",\n  \"password\": \"{{default_password}}\",\n  \"employee_code\": \"{{hr_code}}\",\n  \"full_name\": \"{{hr_name}}\",\n  \"department\": \"Nhân sự\",\n  \"phone\": \"0901000001\",\n  \"role\": \"HR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/accounts/register/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "register",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 - Tạo Nhân viên",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });\nif (pm.response.code === 201) {\n    const data = pm.response.json();\n    pm.test(\"Vai trò EMPLOYEE\", function () { pm.expect(data.user.role).to.eql(\"EMPLOYEE\"); });\n    pm.environment.set(\"next_account_number\", Number(pm.collectionVariables.get(\"account_number\")) + 1);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Referer",
+                "value": "{{base_url}}/"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{employee_email}}\",\n  \"password\": \"{{default_password}}\",\n  \"employee_code\": \"{{employee_code}}\",\n  \"full_name\": \"{{employee_name}}\",\n  \"department\": \"Kế toán\",\n  \"phone\": \"0901000002\",\n  \"role\": \"EMPLOYEE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/accounts/register/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "register",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05 - Đăng xuất super admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Referer",
+                "value": "{{base_url}}/"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/accounts/logout/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "logout",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Tạo Nhân Sự N ([nhansuN@jobbridge.com](https://mailto:nhansuN@jobbridge.com)) và Nhân viên N ([nhanvienN@jobbridge.com](https://mailto:nhanvienN@jobbridge.com)), với N lấy từ next_account_number trong environment. Tạo nhân viên thành công thì tăng số cho lần chạy sau."
+    },
+    {
+      "name": "02 - Luồng giới thiệu và thưởng",
+      "item": [
+        {
+          "name": "1. HR tạo tin tuyển dụng",
+          "item": [
+            {
+              "name": "01 - Lấy CSRF token",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const now = new Date();",
+                      "pm.collectionVariables.set(\"title\", \"Lập trình viên Python \"",
+                      "pm.collectionVariables.set(\"deadline\", new Date(now.getTime() + 30 * 86400000).toISOString().slice(0, 10));",
+                      "pm.collectionVariables.unset(\"job_id\");",
+                      "pm.collectionVariables.unset(\"application_id\");",
+                      "pm.collectionVariables.unset(\"reward_id\");"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/login/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "login",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "02 - Đăng nhập Nhân Sự",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });\nif (pm.response.code === 200) {\n    const data = pm.response.json();\n    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{hr_email}}\",\n  \"password\": \"{{default_password}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/login/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "login",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "03 - Tạo tin tuyển dụng đang mở",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                      "if (pm.response.code === 201) {",
+                      "    const data = pm.response.json();",
+                      "    pm.collectionVariables.set(\"job_id\", data.id);",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"{{title}}\",\n  \"department\": \"Công nghệ thông tin\",\n  \"description\": \"Phát triển ứng dụng tuyển dụng nội bộ.\",\n  \"requirements\": \"Có kiến thức Python, Django và SQL.\",\n  \"number_of_positions\": 1,\n  \"bonus\": \"3000000.00\",\n  \"status\": \"OPEN\",\n  \"deadline\": \"{{deadline}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/recruitment/jobs/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "recruitment",
+                    "jobs",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "04 - Đăng xuất HR",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/logout/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "logout",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "2. Nhân viên giới thiệu ứng viên",
+          "item": [
+            {
+              "name": "05 - Lấy CSRF token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/login/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "login",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "06 - Đăng nhập Nhân viên",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });\nif (pm.response.code === 200) {\n    const data = pm.response.json();\n    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{employee_email}}\",\n  \"password\": \"{{default_password}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/login/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "login",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "07 - Xem tin tuyển dụng",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.test(\"Thấy tin vừa tạo\", function () { pm.expect(data.some(job => job.id === Number(pm.collectionVariables.get(\"job_id\")))).to.eql(true); });",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/recruitment/jobs/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "recruitment",
+                    "jobs",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "08 - Giới thiệu Ứng viên",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });\nif (pm.response.code === 201) {\n    const data = pm.response.json();\n    pm.collectionVariables.set(\"application_id\", data.id);\n    pm.test(\"Đã giới thiệu\", function () { pm.expect(data.current_stage).to.eql(\"APPLIED\"); });\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"job\": \"{{job_id}}\",\n  \"full_name\": \"Ứng viên 1\",\n  \"phone\": \"0902000002\",\n  \"email\": \"ungvien1@example.com\",\n  \"address\": \"Thành phố Hồ Chí Minh\",\n  \"dob\": \"2003-05-20\",\n  \"working_experience\": \"Đã thực tập lập trình Python.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/recruitment/applications/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "recruitment",
+                    "applications",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "09 - Đăng xuất nhân viên",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/logout/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "logout",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "3. HR tuyển dụng và xác nhận thưởng",
+          "item": [
+            {
+              "name": "10 - Lấy CSRF token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/login/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "login",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "11 - Đăng nhập Nhân Sự hiện tại",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{hr_email}}\",\n  \"password\": \"{{default_password}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/login/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "login",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "12 - Chuyển sang sàng lọc",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.test(\"Trạng thái SCREENING\", function () { pm.expect(data.current_stage).to.eql(\"SCREENING\"); });",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"to_stage\": \"SCREENING\",\n  \"note\": \"Hồ sơ phù hợp.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/recruitment/applications/{{application_id}}/change-stage/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "recruitment",
+                    "applications",
+                    "{{application_id}}",
+                    "change-stage",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "13 - Chuyển sang phỏng vấn",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.test(\"Trạng thái INTERVIEW\", function () { pm.expect(data.current_stage).to.eql(\"INTERVIEW\"); });",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"to_stage\": \"INTERVIEW\",\n  \"note\": \"Mời ứng viên phỏng vấn.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/recruitment/applications/{{application_id}}/change-stage/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "recruitment",
+                    "applications",
+                    "{{application_id}}",
+                    "change-stage",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "14 - Xác nhận đã tuyển",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.test(\"Trạng thái HIRED\", function () { pm.expect(data.current_stage).to.eql(\"HIRED\"); });",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"to_stage\": \"HIRED\",\n  \"note\": \"Ứng viên đạt yêu cầu.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/recruitment/applications/{{application_id}}/change-stage/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "recruitment",
+                    "applications",
+                    "{{application_id}}",
+                    "change-stage",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "15 - Xem lịch sử hồ sơ",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.test(\"Có ba lần chuyển trạng thái\", function () { pm.expect(data.length).to.eql(3); });",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/recruitment/applications/{{application_id}}/history/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "recruitment",
+                    "applications",
+                    "{{application_id}}",
+                    "history",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "16 - Xác nhận thưởng giới thiệu",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                      "if (pm.response.code === 201) {",
+                      "    const data = pm.response.json();",
+                      "    pm.collectionVariables.set(\"reward_id\", data.id);",
+                      "    pm.test(\"Thưởng 3 triệu VNĐ\", function () { pm.expect(data.total_amount).to.eql(\"3000000.00\"); });",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/recruitment/applications/{{application_id}}/confirm-reward/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "recruitment",
+                    "applications",
+                    "{{application_id}}",
+                    "confirm-reward",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "17 - Đăng xuất HR",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/logout/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "logout",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "4. Nhân viên xem thưởng",
+          "item": [
+            {
+              "name": "18 - Lấy CSRF token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/login/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "login",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "19 - Đăng nhập Nhân viên hiện tại",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{employee_email}}\",\n  \"password\": \"{{default_password}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/login/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "login",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "20 - Xem các khoản thưởng",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.test(\"Thấy khoản thưởng vừa xác nhận\", function () { pm.expect(data.some(reward => reward.id === Number(pm.collectionVariables.get(\"reward_id\")))).to.eql(true); });",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/recruitment/rewards/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "recruitment",
+                    "rewards",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "21 - Xem tổng thưởng",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                      "if (pm.response.code === 200) {",
+                      "    const data = pm.response.json();",
+                      "    pm.test(\"Tổng thưởng ít nhất 3 triệu VNĐ\", function () { pm.expect(Number(data.total_amount) >= 3000000).to.eql(true); });",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/recruitment/rewards/summary/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "recruitment",
+                    "rewards",
+                    "summary",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "22 - Đăng xuất nhân viên",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CSRFToken",
+                    "value": "{{csrf_token}}"
+                  },
+                  {
+                    "key": "Referer",
+                    "value": "{{base_url}}/"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/accounts/logout/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "accounts",
+                    "logout",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - CRUD tin tuyển dụng",
+      "item": [
+        {
+          "name": "01 - Lấy CSRF token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = new Date();",
+                  "pm.collectionVariables.set(\"crud_title\", \"Lập trình viên Python \"",
+                  "pm.collectionVariables.set(\"crud_deadline\", new Date(now.getTime() + 30 * 86400000).toISOString().slice(0, 10));",
+                  "pm.collectionVariables.unset(\"crud_job_id\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/accounts/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 - Đăng nhập Nhân Sự",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });\nif (pm.response.code === 200) {\n    const data = pm.response.json();\n    pm.collectionVariables.set(\"csrf_token\", data.csrfToken);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Referer",
+                "value": "{{base_url}}/"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{hr_email}}\",\n  \"password\": \"{{default_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/accounts/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 - POST tạo tin tuyển dụng",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    pm.collectionVariables.set(\"crud_job_id\", data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Referer",
+                "value": "{{base_url}}/"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{crud_title}}\",\n  \"department\": \"Công nghệ thông tin\",\n  \"description\": \"Phát triển ứng dụng tuyển dụng nội bộ.\",\n  \"requirements\": \"Có kiến thức Python, Django và SQL.\",\n  \"number_of_positions\": 1,\n  \"bonus\": \"3000000.00\",\n  \"status\": \"OPEN\",\n  \"deadline\": \"{{crud_deadline}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/recruitment/jobs/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recruitment",
+                "jobs",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 - GET danh sách tin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/recruitment/jobs/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recruitment",
+                "jobs",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05 - GET chi tiết tin vừa tạo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/recruitment/jobs/{{crud_job_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recruitment",
+                "jobs",
+                "{{crud_job_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06 - PUT cập nhật tin tuyển dụng",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.test(\"Đã sửa số lượng tuyển\", function () { pm.expect(data.number_of_positions).to.eql(2); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Referer",
+                "value": "{{base_url}}/"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{crud_title}} - Đã cập nhật\",\n  \"department\": \"Công nghệ thông tin\",\n  \"description\": \"Phát triển ứng dụng tuyển dụng nội bộ.\",\n  \"requirements\": \"Có kiến thức Python, Django và SQL.\",\n  \"number_of_positions\": 2,\n  \"bonus\": \"3000000.00\",\n  \"status\": \"OPEN\",\n  \"deadline\": \"{{crud_deadline}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/recruitment/jobs/{{crud_job_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recruitment",
+                "jobs",
+                "{{crud_job_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07 - DELETE xóa tin tuyển dụng",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Referer",
+                "value": "{{base_url}}/"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/recruitment/jobs/{{crud_job_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recruitment",
+                "jobs",
+                "{{crud_job_id}}",
+                ""
+              ]
+            },
+            "description": "API xóa mềm: đặt is_deleted=True."
+          },
+          "response": []
+        },
+        {
+          "name": "08 - GET danh sách sau khi xóa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.test(\"Tin đã xóa không còn trong danh sách\", function () { pm.expect(data.some(job => job.id === Number(pm.collectionVariables.get(\"crud_job_id\")))).to.eql(false); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/recruitment/jobs/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recruitment",
+                "jobs",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09 - Đăng xuất HR",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Referer",
+                "value": "{{base_url}}/"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/accounts/logout/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "logout",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "csrf_token",
+      "value": ""
+    },
+    {
+      "key": "title",
+      "value": ""
+    },
+    {
+      "key": "deadline",
+      "value": ""
+    },
+    {
+      "key": "crud_title",
+      "value": ""
+    },
+    {
+      "key": "crud_deadline",
+      "value": ""
+    },
+    {
+      "key": "account_number",
+      "value": ""
+    },
+    {
+      "key": "hr_name",
+      "value": ""
+    },
+    {
+      "key": "employee_name",
+      "value": ""
+    },
+    {
+      "key": "hr_code",
+      "value": ""
+    },
+    {
+      "key": "employee_code",
+      "value": ""
+    },
+    {
+      "key": "job_id",
+      "value": ""
+    },
+    {
+      "key": "application_id",
+      "value": ""
+    },
+    {
+      "key": "reward_id",
+      "value": ""
+    },
+    {
+      "key": "crud_job_id",
+      "value": ""
+    }
+  ]
+}
