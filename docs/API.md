@@ -77,15 +77,14 @@ Ví dụ tạo HR:
 
 ```json
 {
-  "user": {
-    "employee_code": "NV101",
     "email": "nhanvien1@jobbridge.com",
+    "password": "tintinA123",
+    "employee_code": "NV101",
     "full_name": "Nhân viên 1",
     "department": "Kế toán",
     "phone": "0901000002",
     "role": "EMPLOYEE"
   }
-}
 ```
 
 ## 4. API tin tuyển dụng
