@@ -41,7 +41,7 @@ Domain email công ty được cấu hình bằng `COMPANY_EMAIL_DOMAIN`, mặc 
 ```json
 {
   "email": "admin@jobbridge.com",
-  "password": ""
+  "password": "tintinA123"
 }
 ```
 
