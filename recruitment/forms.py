@@ -35,7 +35,7 @@ class ReferralForm(forms.Form):
         widget=forms.Textarea(attrs={"rows": 4}),
     )
     cv = forms.FileField(
-        label="CV", required=False, validators=[validate_cv],
+        label="CV", required=True, validators=[validate_cv],
         help_text="PDF, DOC hoặc DOCX. Tối đa 5 MB.",
         widget=forms.ClearableFileInput(attrs={"accept": ".pdf,.doc,.docx"}),
     )

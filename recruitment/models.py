@@ -17,7 +17,7 @@ class JobPost(models.Model):
         OPEN = "OPEN", "Đang mở"
         CLOSED = "CLOSED", "Đã đóng"
 
-    title = models.CharField("Tiêu đề", max_length=200)
+    title = models.CharField("Vị trí", max_length=200)
     department = models.CharField("Bộ phận tuyển dụng", max_length=150)
     description = models.TextField("Mô tả công việc")
     requirements = models.TextField("Yêu cầu ứng viên")
@@ -218,8 +218,8 @@ class ApplicationStatusHistory(models.Model):
     changed_at = models.DateTimeField("Thời gian chuyển trạng thái", auto_now_add=True)
 
     class Meta:
-        verbose_name = "Lịch sử tuyển dụng"
-        verbose_name_plural = "Lịch sử tuyển dụng"
+        verbose_name = "Lịch sử hồ sơ"
+        verbose_name_plural = "Lịch sử hồ sơ"
         ordering = ["changed_at", "id"]
 
     def __str__(self):

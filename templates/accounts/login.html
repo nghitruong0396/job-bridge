@@ -1,21 +1,20 @@
 {% extends "base.html" %}
+
 {% block title %}Đăng nhập | JobBridge{% endblock %}
+
 {% block content %}
     <div class="auth-panel">
         <div class="text-center mb-4">
-            <h1 class="page-title">Chào mừng trở lại</h1>
-            <p class="text-body-secondary">Đăng nhập để giới thiệu và kết nối nhân tài.</p>
+            <h1 class="page-title">Đăng nhập</h1>
         </div>
         <section class="card">
             <div class="card-body">
-                <h2 class="h5 mb-4">Đăng nhập JobBridge</h2>
                 <form method="post" action="{% url 'accounts_web:login' %}">
                     {% csrf_token %}
                     {% include "includes/form_fields.html" %}
                     {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
                     <button class="btn btn-primary w-100 mt-2" type="submit">Đăng nhập</button>
                 </form>
-                <p class="small text-body-secondary mt-4 mb-0">Sử dụng email công ty và mật khẩu được cấp.</p>
             </div>
         </section>
     </div>

@@ -2,7 +2,9 @@
 {% load ui %}
 {% block title %}Thưởng giới thiệu | JobBridge{% endblock %}
 {% block content %}
-    <div class="page-header"><h1 class="page-title">Thưởng giới thiệu</h1><p class="text-body-secondary mb-0">{% if user.role == "HR" %}Các khoản thưởng giới thiệu đã được xác nhận.{% else %}Theo dõi các khoản thưởng đã được xác nhận của bạn.{% endif %}</p></div>
+    <div class="page-header">
+        <h1 class="page-title">Thưởng giới thiệu</h1>
+    </div>
     <div class="row g-3 mb-4">
         <div class="col-12 col-md-7 col-lg-5">
             <div class="card bg-primary text-white">
@@ -21,15 +23,27 @@
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead>
-                    <tr>
-                        <th scope="col">Mã hồ sơ</th>
-                        <th scope="col">Vị trí</th>
-                        <th scope="col">Người nhận</th>
-                        <th scope="col">Số tiền</th>
-                        <th scope="col">Ngày xác nhận</th>
-                    </tr>
+                <tr>
+                    <th scope="col">Mã hồ sơ</th>
+                    <th scope="col">Vị trí</th>
+                    <th scope="col">Người nhận</th>
+                    <th scope="col">Số tiền</th>
+                    <th scope="col">Ngày xác nhận</th>
+                </tr>
                 </thead>
-                <tbody>{% for reward in rewards %}<tr><td><a href="{% url 'recruitment_web:application-detail' reward.application_id %}">#{{ reward.application_id }}</a></td><td>{{ reward.application.job.title }}</td><td>{{ reward.employee.full_name }}</td><td class="text-nowrap fw-semibold">{{ reward.total_amount|vnd }}</td><td class="text-nowrap">{{ reward.created_at|date:"d/m/Y H:i" }}</td></tr>{% empty %}<tr><td class="empty-state" colspan="5">Chưa có thưởng được xác nhận.</td></tr>{% endfor %}</tbody>
+                <tbody>{% for reward in rewards %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'recruitment_web:application-detail' reward.application_id %}">#{{ reward.application_id }}</a>
+                        </td>
+                        <td>{{ reward.application.job.title }}</td>
+                        <td>{{ reward.employee.full_name }}</td>
+                        <td class="text-nowrap fw-semibold">{{ reward.total_amount|vnd }}</td>
+                        <td class="text-nowrap">{{ reward.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>{% empty %}
+                    <tr>
+                        <td class="empty-state" colspan="5">Chưa có thưởng được xác nhận.</td>
+                    </tr>{% endfor %}</tbody>
             </table>
         </div>
     </section>

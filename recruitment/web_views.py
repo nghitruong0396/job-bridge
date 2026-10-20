@@ -75,7 +75,7 @@ def job_action(request, pk, operation):
     if operation == "delete":
         job.is_deleted = True
         job.save(update_fields=["is_deleted", "updated_at"])
-        messages.success(request, "Đã xóa mềm tin tuyển dụng.")
+        messages.success(request, "Đã xóa tin tuyển dụng.")
         return redirect("recruitment_web:job-list")
     job.status = JobPost.Status.OPEN if operation == "open" else JobPost.Status.CLOSED
     job.save(update_fields=["status", "updated_at"])
@@ -172,9 +172,10 @@ def application_stage(request, pk):
             add_serializer_errors(form, error.message_dict if hasattr(error, "message_dict") else error.messages)
             application.refresh_from_db()
         else:
-            messages.success(request, "Đã chuyển trạng thái và ghi lịch sử tuyển dụng.")
+            messages.success(request, "Đã chuyển trạng thái và ghi Lịch sử hồ sơ.")
             return redirect("recruitment_web:application-detail", pk=pk)
-    return render(request, "recruitment/application_detail.html", application_context(request, application, stage_form=form))
+    return render(request, "recruitment/application_detail.html",
+                  application_context(request, application, stage_form=form))
 
 
 @role_required(User.Role.HR)
@@ -189,7 +190,8 @@ def application_note(request, pk):
             messages.success(request, "Đã lưu ghi chú nội bộ.")
             return redirect("recruitment_web:application-detail", pk=pk)
         add_serializer_errors(form, serializer.errors)
-    return render(request, "recruitment/application_detail.html", application_context(request, application, note_form=form))
+    return render(request, "recruitment/application_detail.html",
+                  application_context(request, application, note_form=form))
 
 
 @role_required(User.Role.HR)
@@ -215,7 +217,8 @@ def application_cv(request, pk):
         application.save(update_fields=["cv", "updated_at"])
         messages.success(request, "Đã cập nhật CV.")
         return redirect("recruitment_web:application-detail", pk=pk)
-    return render(request, "recruitment/application_detail.html", application_context(request, application, cv_form=form))
+    return render(request, "recruitment/application_detail.html",
+                  application_context(request, application, cv_form=form))
 
 
 @role_required(User.Role.HR)

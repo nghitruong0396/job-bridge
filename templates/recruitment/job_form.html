@@ -1,16 +1,23 @@
 {% extends "base.html" %}
+
 {% block title %}{% if job %}Sửa{% else %}Tạo{% endif %} tin tuyển dụng | JobBridge{% endblock %}
+
 {% block content %}
     <div class="form-panel">
-        <div class="page-header"><a class="small text-decoration-none"
-   href="{% url 'recruitment_web:job-list' %}">← Danh sách tuyển dụng</a><h1 class="page-title mt-3">{% if job %}Sửa{% else %}Tạo{% endif %} tin tuyển dụng</h1><p class="text-body-secondary mb-0">Điền thông tin vị trí và chính sách thưởng giới thiệu.</p></div>
+        <div class="page-header">
+            <a class="small text-decoration-none"
+               href="{% url 'recruitment_web:job-list' %}">← Danh sách tuyển dụng</a>
+            <h1 class="page-title mt-3">{% if job %}Sửa{% else %}Tạo{% endif %} tin tuyển dụng</h1>
+        </div>
         <section class="card">
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
                     {% include "includes/form_fields.html" %}
-                    <div class="form-actions"><button class="btn btn-primary" type="submit">Lưu tin tuyển dụng</button><a class="btn btn-outline-secondary"
-   href="{% url 'recruitment_web:job-list' %}">Hủy</a></div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">Lưu tin tuyển dụng</button>
+                        <a class="btn btn-outline-secondary"
+                           href="{% url 'recruitment_web:job-list' %}">Hủy</a></div>
                 </form>
             </div>
         </section>

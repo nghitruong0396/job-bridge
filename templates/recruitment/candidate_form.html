@@ -2,15 +2,21 @@
 {% block title %}Cập nhật ứng viên | JobBridge{% endblock %}
 {% block content %}
     <div class="form-panel">
-        <div class="page-header"><a class="small text-decoration-none"
-   href="{% url 'recruitment_web:candidate-detail' candidate.pk %}">← Hồ sơ ứng viên</a><h1 class="page-title mt-3">Cập nhật ứng viên</h1><p class="text-body-secondary mb-0">{{ candidate.full_name }}</p></div>
+        <div class="page-header">
+            <a class="small text-decoration-none"
+               href="{% url 'recruitment_web:candidate-detail' candidate.pk %}">← Hồ sơ ứng viên
+            </a>
+            <h1 class="page-title mt-3">Cập nhật ứng viên</h1>
+            <p class="text-body-secondary mb-0">{{ candidate.full_name }}</p></div>
         <section class="card">
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
                     {% include "includes/form_fields.html" %}
-                    <div class="form-actions"><button class="btn btn-primary" type="submit">Lưu hồ sơ</button><a class="btn btn-outline-secondary"
-   href="{% url 'recruitment_web:candidate-detail' candidate.pk %}">Hủy</a></div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">Lưu hồ sơ</button>
+                        <a class="btn btn-outline-secondary"
+                           href="{% url 'recruitment_web:candidate-detail' candidate.pk %}">Hủy</a></div>
                 </form>
             </div>
         </section>
