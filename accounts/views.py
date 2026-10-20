@@ -2,11 +2,25 @@ from django.contrib.auth import login, logout
 from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
+from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import AccountSerializer, LoginSerializer
+from .permissions import IsSuperAdmin
+from .serializers import AccountSerializer, LoginSerializer, RegisterSerializer
+
+
+class RegisterView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(
+            {"user": AccountSerializer(user).data}, status=status.HTTP_201_CREATED
+        )
 
 
 # SessionAuthentication không kiểm tra CSRF cho người chưa đăng nhập.
