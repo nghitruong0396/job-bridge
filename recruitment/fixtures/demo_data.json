@@ -10,8 +10,8 @@
     "date_joined": "2026-10-14T08:40:34.543Z",
     "employee_code": "ADM001",
     "email": "admin@jobbridge.com",
-    "full_name": "Quản trị JobBridge",
-    "department": "Quản trị hệ thống",
+    "full_name": "Admin",
+    "department": "Quản trị",
     "phone": "0901000001",
     "role": "EMPLOYEE"
   }
@@ -26,8 +26,8 @@
     "is_active": true,
     "date_joined": "2026-10-14T08:40:34.543Z",
     "employee_code": "NV001",
-    "email": "hr@jobbridge.com",
-    "full_name": "Lê Minh Hà",
+    "email": "nhansu@jobbridge.com",
+    "full_name": "Nhân sự",
     "department": "Nhân sự",
     "phone": "0901000002",
     "role": "HR"
@@ -43,27 +43,10 @@
     "is_active": true,
     "date_joined": "2026-10-14T08:40:34.543Z",
     "employee_code": "NV002",
-    "email": "an.nguyen@jobbridge.com",
-    "full_name": "Nguyễn Văn An",
-    "department": "Công nghệ thông tin",
+    "email": "nhanvien@jobbridge.com",
+    "full_name": "Nhân Viên",
+    "department": "Kế toán",
     "phone": "0901000003",
-    "role": "EMPLOYEE"
-  }
-},
-{
-  "model": "accounts.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1000000$dIyMl8PVAn0wFta6iH3hIl$Mek2WaTmum1xjYBYy2rKf0HzDLgKBfCbKie9fkuEsDA=",
-    "last_login": null,
-    "is_superuser": false,
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-10-14T08:40:34.543Z",
-    "employee_code": "NV003",
-    "email": "binh.tran@jobbridge.com",
-    "full_name": "Trần Thanh Bình",
-    "department": "Kinh doanh",
-    "phone": "0901000004",
     "role": "EMPLOYEE"
   }
 },
@@ -71,16 +54,16 @@
   "model": "recruitment.jobpost",
   "pk": 1,
   "fields": {
-    "title": "Python Django Developer",
+    "title": "Lập trình Python",
     "department": "Công nghệ thông tin",
     "description": "Phát triển API bằng Django REST Framework; xây dựng giao diện Django Templates; phối hợp kiểm thử và bảo trì ứng dụng.",
     "requirements": "Có kiến thức Python, Django, SQL và Git; hiểu REST API; chấp nhận ứng viên mới tốt nghiệp.",
     "number_of_positions": 2,
     "bonus": "3000000.00",
     "status": "OPEN",
-    "deadline": "2027-12-31",
+    "deadline": "2026-12-31",
     "created_by": [
-      "hr@jobbridge.com"
+      "nhansu@jobbridge.com"
     ],
     "created_at": "2026-10-14T08:40:34.543Z",
     "updated_at": "2026-10-14T08:40:34.543Z",
